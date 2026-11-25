@@ -1,0 +1,54 @@
+/* 播放页：铺满窗口、盖在首页上面（同本地视频的 .dk-lp） */
+.lite-lp { position: fixed; inset: 0; z-index: 45; background: var(--bg); overflow: hidden; }
+
+/* 设置（SettingsPanel，共用组件）在精简界面里也是滑出来的抽屉：
+   窄屏从下往上、顶上留一条压暗的缝（点缝收起，同练习抽屉 liteShadow.css .lm-prac）；宽屏照旧靠右，改成从右边滑进来。
+   滑动时长和练习、设置播放抽屉一样（liteShadow.css .lm-sheet）；收起由 slideOut.js 放影子滑回去（见文件末尾）；系统设了「减少动态效果」就不滑 */
+.settings { animation: lite-set-in-x 0.38s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes lite-set-in-x { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes lite-set-in-y { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes lite-fade-in { from { opacity: 0; } to { opacity: 1; } }
+:root[dir="rtl"] .settings { animation-name: lite-set-in-x-rtl; }
+@keyframes lite-set-in-x-rtl { from { transform: translateX(-100%); } to { transform: none; } }
+@media (max-width: 760px) {
+  .settings, :root[dir="rtl"] .settings {
+    width: 100%; height: calc(100% - 44px - env(safe-area-inset-top, 0px)); align-self: flex-end;
+    border: 0; border-radius: 22px 22px 0 0; overflow: hidden; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+    animation-name: lite-set-in-y;
+  }
+  
+}
+@media (prefers-reduced-motion: reduce) { .settings { animation: none; } }
+
+   /* 只淡掉压暗的底色，面板本身不跟着变透明 */
+@keyframes lite-set-out-x { from { transform: none; } to { transform: translateX(100%); } }
+@keyframes lite-set-out-x-rtl { from { transform: none; } to { transform: translateX(-100%); } }
+@keyframes lite-set-out-y { from { transform: none; } to { transform: translateY(100%); } }
+@keyframes lite-dim-out { to { background-color: transparent; } }
+
+/* ── 窄屏首页（LiteApp.jsx + MobileLib.jsx）：只在 760 宽以下 ──
+   顶上一行：最左头像（不跟着滑）、右边一排横滑标签、两端渐隐；下面是今日练习条 → 放大镜＋难度四段 → 按分类一排排横滑的小卡 */
+@media (max-width: 760px) {
+  .lite-app { flex-direction: column; }
+  /* 竖排时中间这块要能缩：不写 min-height: 0，iPhone（Safari 内核）会把它撑到内容那么高，列表就不是自己滚、被外框裁掉，整页还会被顶上去 */
+  .lite-app > .dk-body { flex: 1 1 0; min-height: 0; }
+
+}
+
+/* 列表页 */
+.lm-main { padding: 12px 16px 28px; min-width: 0; }
+.lm-seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lm-seg { flex: 1; min-width: 0; display: flex; gap: 2px; padding: 3px; border-radius: 12px; background: #1d1831; }
+.lm-seg button { flex: 1; min-width: 0; padding: 0 4px; border: 0; border-radius: 9px; background: none; color: #b8b2d3; font: inherit; font-size: 13px; line-height: 32px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.lm-seg button.on { background: #2f2752; color: #fff; font-weight: 700; }
+   /* 16px：苹果手机点进去不自动放大 */
+
+.lm-n { flex: none; color: var(--muted); font-size: 12px; }
+@keyframes lm-pulse { 50% { opacity: .55; } }
+
+/* 本机练习版首页：页头右边放在学语言、界面语言两个下拉 */
+.lite-head-picks { margin-inline-start: auto; display: flex; align-items: center; gap: 18px; }
+@media (max-width: 760px) {
+  .lite-head { height: auto; min-height: 54px; flex-wrap: wrap; padding: 8px 16px; }
+  .lite-head-picks { width: 100%; margin: 0; justify-content: space-between; gap: 10px; }
+}

@@ -1,0 +1,211 @@
+/* 桌面版首页（web/src/desktop）的样式：配色全用 styles.css 的变量，类名都带 dk- 前缀，不碰播放器和首页的样式。
+   字重只用 400 / 700（外装雅黑半粗会把 500 / 600 画成别的字重）。 */
+/* 首页 = 左侧栏 + 右边当前页。
+   侧栏和页头固定不动，只有当前页的内容（.dk-panel）自己滚，滚动条从页头下面开始 */
+.dk-app { height: 100%; overflow: hidden; display: flex; }
+
+/* 侧栏：一条从深紫到近黑的竖向渐变、不画分隔线；
+   左上角标志 + 「耳如 / 桌面版」两行；组名前一小段紫粉渐变短线；选中的那一项整块紫粉渐变底、白字；头像外一圈紫粉描边 */
+.dk-logo { flex: none; display: block; }
+
+/* 右边：页头写当前页的名字，下面是当前页 */
+.dk-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.dk-pagehead { flex: none; height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+.dk-pagehead h1 { margin: 0; min-width: 0; font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 无边框窗口：页头（和侧栏顶上的耳如标志）就是标题栏——空白处按住能拖动窗口、双击最大化（Mac 放大）；按钮、语言列表这些能点的不拖。
+   Electron 的拖动区不看谁盖在上面：弹窗 / 浮层开着、启动画面或播放页盖着时页头整条不拖，不然盖在页头上的那一截点不动 */
+.dk-pagehead button, .dk-pagehead a, .dk-pagehead input, .dk-pagehead select, .dk-pagehead [role="listbox"] { -webkit-app-region: no-drag; }
+.dk-pagehead { -webkit-app-region: drag; }
+.dk-app[inert] :is(.dk-pagehead, .dk-brand), :root:has([role="dialog"], [aria-modal="true"], dialog[open]) :is(.dk-pagehead, .dk-brand) { -webkit-app-region: no-drag; }
+/* 换在学语言的图标（LearnSwitch.jsx）：靠右（逻辑属性，阿拉伯语整界面镜像时跑到最左边）；角上写当前那门的缩写 */
+/* 窗口按钮（WinButtons.jsx）：学习语言后面一道竖线，再 置顶 · 最小化 · 最大化 · 关闭；页头右边距收窄，按钮贴着窗口角 */
+.dk-pagehead:has(.dk-wbs) { padding-inline-end: 10px; }
+
+/* 语言列表靠右边对齐（阿拉伯语镜像时靠左） */
+/* 确认窗口：标题、「从 → 到」、两颗按钮 */
+/* 设置里挑了和在学的同一门当界面语言：提示窗盖在设置面板（.modal-backdrop z-index 60）上面（SettingsPanel.jsx UiLangClash） */
+/* AI 功能先问一句（AiConsent.jsx）：盖在设置面板上面 */
+
+/* 每个标签页各自一个滚动区，切走再切回来还停在原来的位置 */
+.dk-panel { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; }
+.dk-panel[hidden] { display: none; }
+
+/* 学习计划页的样式在 planTab.css（PlanTab.jsx 引入）：卡片网格。
+   .dk-panel 仍是整页的滚动区，.dk-plan-page 是它里面的内容（块级、不收缩，卡片网格自己管宽度）。 */
+
+
+/* 本地视频：一块大的「打开 / 拖进来」，下面是最近播放（播放器起始页的那一排卡，样式在 styles.css） */
+.dk-local { max-width: 1120px; padding-top: 24px; }
+.dk-drop {
+  display: flex; align-items: center; gap: 22px; padding: 34px 36px; background: var(--panel);
+  border: 1.5px dashed #3d3760; border-radius: 18px; transition: border-color .15s, background .15s;
+}
+.dk-drop:hover, .dk-drop.over { border-color: var(--accent); }
+.dk-drop.over { background: var(--accent-soft); }
+.dk-drop-icon { flex: none; width: 62px; height: 62px; display: grid; place-items: center; border-radius: 17px; background: var(--accent-soft); color: var(--accent-text); }
+.dk-drop-text { flex: 1; min-width: 0; }
+.dk-drop-text h2 { margin: 0 0 6px; font-size: 21px; font-weight: 700; }
+.dk-drop-text p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.dk-pick-btn { flex: none; }
+.dk-note { margin: 14px 0 0; padding: 10px 14px; border-radius: 10px; background: var(--bad-soft); border: 1px solid rgba(255, 107, 107, .35); color: #ffb4b4; font-size: 14px; line-height: 1.6; }
+.dk-note a { color: var(--accent-text); margin-left: 6px; }
+.dk-local .recent { margin-top: 30px; }
+
+   /* 面板是竖排弹性盒，左右 auto 边距会缩到内容宽，得给满宽 */
+
+/* 关闭钮：也用于不在外层容器里的提示 */
+
+.dk-main { flex: 1; width: 100%; padding: 16px 20px 32px; max-width: 1400px; margin: 0 auto; }
+
+/* 搜索 / 排序 / 标记 */
+/* 打开网址：独占一行，在搜索那一行上面 */
+.dk-pick { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+/* 下拉框（Pick.jsx）：按钮按当前选中的字收宽（不用和弹出列表一样宽，否则「英语」后面空一大截）；
+   弹出列表按最长的选项自动定宽，和头像菜单一套深紫底；选中那项紫字带勾（勾的位置每项都留着，列表宽度不跟着选中项变） */
+.dk-pk { position: relative; }
+.dk-pk-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px 6px 11px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px; color: var(--text); font: inherit; font-size: 13.5px; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.dk-pk-btn svg { color: var(--muted); transition: transform .18s ease; }
+.dk-pk-btn:hover { border-color: #3b3557; background: #241f3e; }
+.dk-pk-btn[aria-expanded="true"] { border-color: var(--accent); }
+.dk-pk-btn[aria-expanded="true"] svg { transform: rotate(180deg); color: var(--accent-text); }
+.dk-pk-list { position: absolute; left: 0; top: calc(100% + 6px); z-index: 40; min-width: 100%; width: max-content; max-height: min(440px, 70vh); overflow-y: auto; margin: 0; padding: 6px; list-style: none;
+  background: #1d1831; border: 1px solid #3b3557; border-radius: 12px; box-shadow: 0 14px 36px rgba(0, 0, 0, .5); outline: 0; transform-origin: top left; animation: dk-pk-in .14s ease-out; }
+.dk-pk-list li { display: flex; align-items: center; gap: 16px; padding: 7px 10px 7px 12px; border-radius: 8px; color: var(--text); font-size: 13.5px; cursor: pointer; user-select: none; }
+.dk-pk-list li svg { margin-left: auto; color: var(--accent-text); }
+.dk-pk-list li:not([aria-selected="true"]) svg { visibility: hidden; }
+.dk-pk-list li.on { background: #292441; }
+.dk-pk-list li[aria-selected="true"] { color: var(--accent-text); }
+@keyframes dk-pk-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+@media (prefers-reduced-motion: reduce) { .dk-pk-list { animation: none; } .dk-pk-btn svg { transition: none; } }
+:root[dir="rtl"] .dk-pk-list { left: auto; right: 0; transform-origin: top right; }
+.dk-pk-btn:focus-visible {
+  outline: 2px solid var(--accent-bright); outline-offset: 1px;
+}
+
+.dk-toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); padding: 8px 16px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60; }
+.dk-toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* 窗口窄（最窄 640）：侧栏收成一列图标，名字在悬停提示里（标签的 title），两组之间一条细线；品牌、头像旁那行字收起 */
+@media (max-width: 760px) {
+
+  .dk-pagehead { padding: 0 18px; }
+}
+@media (max-width: 640px) {
+  .dk-main { padding: 14px 16px 28px; }
+  .dk-local { padding-top: 16px; }
+  .dk-drop { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 20px; }
+  .dk-drop-icon { width: 52px; height: 52px; }
+  .dk-pick-btn { width: 100%; }
+
+}
+/* 小窗口（720 × 520 这样矮的）：压一压上下的空白 */
+@media (max-height: 560px) {
+
+  .dk-pagehead { height: 46px; }
+  .dk-local { padding-top: 14px; }
+  .dk-drop { padding: 22px 28px; }
+  
+}
+
+/* 启动画面（Splash.jsx，时序在 reach.js）：满屏盖在最上面（比选集窗口、提示条都高），背景和首页一个色。
+   合成版：第一版背后紫光明暗 + 第二版紫色声波一圈圈往外扩（呼应「听」）+ 第三版描边出场
+   + 第四版等待时琥珀条隔几秒轻轻蹦一下 + 第五版下面浮出字幕条、紫红高亮从左扫到右、等待时光标闪（字幕条写什么看系统语言，见 reach.js 的 splashName）。
+   LOGO 画完整了再出字；字幕条的动画拉长、整段 4 秒。所以 0–1.7 秒只画 LOGO（描边 1 秒一根、间隔 .15 秒，填色、琥珀条的弹 1.7 秒收齐），
+   1.8 秒字幕条浮出（.5 秒）、2.3–3.5 秒扫亮、之后光标闪；reach.js 的 SPLASH_MIN_MS 是 3800，再淡出 .2 秒，正好 4 秒。
+   之后只剩等待循环，起止都是静止态，任何时刻淡出都是完整的 LOGO + 字幕条。
+   尺寸全用 cqmin（.dk-splash 自己当容器），整体（LOGO、紫光、声波圈、字幕条）缩到 60%；涟漪半径用 CSS 的 r、描边用 pathLength=1（Electron 的 Chromium 都认）。markup 在 Splash.jsx。
+   .out 是试连有结论后的淡出，时长要和 reach.js 的 SPLASH_OUT_MS（200ms）一致 */
+/* 启动更新闸门（UpdateGate.jsx）：版本过旧时整屏盖住等更新。压在启动画面下面（它放完才露出来）、窗口右上角按钮下面（照样能拖能关）、盖过首页和各弹窗 */
+@keyframes dk-updgate-ind { from { inset-inline-start: 0; } to { inset-inline-start: 62%; } }
+
+@keyframes dk-splash-glow-in { from { opacity: 0; transform: scale(.6); } }
+@keyframes dk-splash-glow { 50% { opacity: .5; } }
+
+/* —— 第二版：声波涟漪（不占位；viewBox -50..50，1 个单位 = .66cqmin，半径 14 → 44） —— */
+@keyframes dk-splash-ring {
+  0%   { r: 14px; opacity: 0; }
+  12%  { opacity: .55; }
+  100% { r: 44px; opacity: 0; }
+}
+
+/* —— 第三版：描边出场。每根竖条两层：实心填色 + 内缩 2 的描边层；前 70% 描完轮廓，后 30% 描边淡掉，填色晚 .42 秒淡进 —— */
+@keyframes dk-splash-draw {
+  0%   { stroke-dashoffset: 1; stroke-opacity: 1; }
+  70%  { stroke-dashoffset: 0; stroke-opacity: 1; }
+  100% { stroke-dashoffset: 0; stroke-opacity: 0; }
+}
+@keyframes dk-splash-fill { from { fill-opacity: 0; } }
+/* 琥珀条最后收笔，填色时整体弹一下 */
+@keyframes dk-splash-pop { from { transform: scale(.82); } }
+
+/* —— 第四版：等待时琥珀条隔几秒轻轻蹦一下（外面再包一层 g，不和出场的弹抢 transform）。2.2 秒起第一蹦，之后每 3.4 秒一蹦 —— */
+@keyframes dk-splash-hop {
+  0%   { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  9%   { transform: translateY(-14px); animation-timing-function: cubic-bezier(.6, 0, .8, .5); }
+  18%  { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .6, .4, 1); }
+  23%  { transform: translateY(-4px); animation-timing-function: ease-in; }
+  28%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/* —— 第五版：字幕条。暗层（一直在）+ 亮层（紫→玫红底 + 白字，clip-path 从左往右揭开），边缘一根亮线跟着走；扫完亮起琥珀光标 —— */
+/* 底色几乎不透：声波圈走到字幕条这里时从它后面过，不透出来 */
+
+@keyframes dk-splash-sub-in { from { opacity: 0; transform: translateY(.96cqmin); } }
+@keyframes dk-splash-sweep { from { clip-path: inset(0 100% 0 0 round 1.08cqmin); } }
+@keyframes dk-splash-edge { from { left: 0; } }
+@keyframes dk-splash-edge-fade { 0% { opacity: 0; } 10% { opacity: 1; } 88% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes dk-splash-caret-in { from { opacity: 0; } }
+@keyframes dk-splash-blink { 0%, 55% { opacity: 1; } 57%, 98% { opacity: 0; } 100% { opacity: 1; } }
+
+/* 本地视频的播放界面（LocalPlayer.jsx）：盖满整个窗口、盖在首页上面（低于拖入提示 50 和提示条 60）。
+   <video> 在这一层，界面（控制区 / 进度条 / 字幕列表 / 排序）在它上面的 shadow root 里，样式和播放器里同一份（styles.css + overlay.css） */
+.dk-lp { position: fixed; inset: 0; z-index: 45; background: #000; overflow: hidden; }
+/* 字幕列表停成侧边栏：画面让出左边一栏（和 styles.css 的 .stage.list-side video 同一个宽度） */
+/* 界面还没挂上（选盒子、读轨道的那一会儿）临时的返回键：界面一挂上就换成里面左上角的「← 片名」 */
+.dk-lp-back { position: absolute; left: 14px; top: 12px; z-index: 2; width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .45); color: #fff; cursor: pointer; }
+.dk-lp-back:hover { background: rgba(0, 0, 0, .65); }
+
+/* 侧栏学习组的生词本 / 跟读练习 / 每日小测：播放器 /app 里现成的那三页（TaskPages.jsx），它们自己 position:absolute 铺满，这里给它们一个铺的地方 */
+
+
+/* 小图标按钮（目录浏览顶栏、局域网扫描刷新）：和 .dk-modal-x 一个样 */
+@keyframes dk-rm-spin { to { transform: rotate(360deg); } }
+
+/* 嵌入网页页（EmbedPage.jsx）：顶栏「← 来源名」的尺寸照播放顶栏（styles.css .stage-top：高 50、左右空 16、箭头钮 28 见方、图标 20、片名 20 像素字重 700），
+   下面的空框 .dk-embed-stage 是外层容器放网页的位置（那层盖在网页上面，所以这里什么也不画）。字重只用 400 / 700 */
+/* 嵌入网页页：胶囊那一行照旧，下面整块给嵌进来的网页（bare：没有「← 名字」顶栏，只有提示那一行） */
+
+/* ================= 第一次进入选母语 / 想学（desktop/Onboard.jsx） =================
+   视觉规格：整屏深色、中上方一团淡紫光、LOGO + 名字、
+   一句话两行「母语 [胶囊] / 想学 [胶囊] →」，胶囊点开是自己画的深色列表。配色全用 styles.css 的变量，字重只用 400 / 700。
+   z-index 55：盖在首页和弹窗（50）上，提示条（60）和启动画面（100）在它上面。 */
+.ob {
+  position: fixed; inset: 0; z-index: 55;
+  overflow-x: hidden; overflow-y: auto;
+  background: radial-gradient(520px 300px at 50% 34%, rgba(124, 58, 237, .15), transparent 72%), var(--bg);
+  color: var(--text);
+  font-size: 16px; font-weight: 400; line-height: 1.5;   /* 字体跟 <html lang>（styles.css 的 html:lang(…) body），下面只管列表里别种语言的项 */
+  -webkit-user-select: none; user-select: none;
+}
+.ob *, .ob *::before, .ob *::after { box-sizing: border-box; }
+/* 列表里 12 种文字混在一起，每项都标了 lang：按各语言自己的字形挑字体（简体雅黑、繁體正黑体，日韩阿各走自己的） */
+.ob [lang="zh-CN"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+.ob [lang="zh-TW"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+.ob [lang="ja"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; }
+.ob [lang="ko"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+.ob [lang="hi"] { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Nirmala UI", "Kohinoor Devanagari", "Devanagari Sangam MN", sans-serif; }
+.ob [lang="ar"] { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Geeza Pro", "Noto Sans Arabic", Tahoma, sans-serif; }
+
+/* 点到这一屏的空白处时根节点接住焦点（tabIndex=-1），Tab 才不会漏到后面的首页；不画焦点框 */
+.ob:focus { outline: 0; }
+
+@keyframes ob-pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+@keyframes ob-popup { from { opacity: 0; transform: translateY(4px) scale(.98); } }
+
+@keyframes ob-rise { from { opacity: 0; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ob *, .ob *::before, .ob *::after { animation: none !important; transition: none !important; }
+}
+/* ================= 第一次进入选母语 / 想学 结束 ================= */

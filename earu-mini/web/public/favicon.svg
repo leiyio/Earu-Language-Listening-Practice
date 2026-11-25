@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="86 86 340 340" width="340" height="340">
+  <title>耳如</title>
+  <!-- 网站图标（浏览器标签页、Google 搜索结果左边的小图标）：和 brand-small.svg 是同一张图，只是左右各多留 10 凑成正方形。
+       Google 要求网站图标是正方形，brand-small.svg 宽 320、高 340 不合格；页面上的标志还用 brand-small.svg，不动 -->
+  <defs>
+    <linearGradient id="g" x1="106" y1="416" x2="406" y2="96" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#945df0"/><stop offset="1" stop-color="#e04ba9"/></linearGradient>
+    <linearGradient id="gt" x1="0" y1="221" x2="0" y2="291" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffc24a"/><stop offset="1" stop-color="#f59a10"/></linearGradient>
+  </defs>
+  <rect x="106" y="96" width="44" height="320" rx="22" fill="url(#g)"/>
+  <rect x="170" y="129" width="44" height="254" rx="22" fill="url(#g)"/>
+  <rect x="234" y="162" width="44" height="188" rx="22" fill="url(#g)"/>
+  <rect x="298" y="195" width="44" height="122" rx="22" fill="url(#g)"/>
+  <rect x="362" y="221" width="44" height="70" rx="22" fill="url(#gt)"/>
+</svg>

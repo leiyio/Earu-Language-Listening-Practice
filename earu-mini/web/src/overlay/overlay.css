@@ -1,0 +1,35 @@
+/* 覆盖层的额外样式：排在 styles.css（构建时已把 :root / html / body / #root 改写成 :host / .ov-root）后面。
+   覆盖层整个盖在视频上，背景不接鼠标（点画面暂停、双击全屏、拖进度条仍交给下面的播放器），只有控制区、答题区、字幕列表、词卡这些真有内容的块接鼠标。 */
+
+/* 根容器：铺满宿主（宿主是播放器容器里的一个 absolute 铺满的元素），网站原来写给 body 的底色去掉 */
+.ov-root {
+  position: absolute; inset: 0; overflow: hidden; height: auto; margin: 0;
+  background: transparent !important; pointer-events: none;
+}
+/* 覆盖层里不能选字（Ctrl+A 由 noSelect.js 拦）：宿主元素 all: initial 把页面上的禁选也清掉了，这里重新禁。
+   输入框照常能选；答题区译文、句子解析、词卡、跟读的句子自己写着 user-select: text */
+.ov-root { -webkit-user-select: none; user-select: none; }
+.ov-root :is(input, textarea, [contenteditable]) { -webkit-user-select: text; user-select: text; }
+/* 网站的 .workspace 是页面级的网格（带内边距）；这里就是一整块舞台 */
+.ov-root .workspace { position: absolute; inset: 0; padding: 0; gap: 0; display: flex; background: none; }
+.ov-root .left { flex: 1; min-width: 0; min-height: 0; overflow: hidden; gap: 0; display: flex; flex-direction: column; }
+.ov-root .player { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* 舞台：透明（视频在下面）、不接鼠标；里面真有内容的块接鼠标 */
+.ov-root .stage.is-ext { background: transparent; border-radius: 0; pointer-events: none; flex: 1 1 0; min-height: 0; }
+.ov-root .stage.is-ext :is(.float-ctl, .float-prac, .float-list, .list-tab, .an-layer, .cbar, .toast, .mask-text, .stage-note, .end-cover) { pointer-events: auto; }
+/* 词卡、拖影、提示条是 portal 出来的（挂在 .ov-root 下面，不在舞台里） */
+.ov-root > .sort-ghost, .ov-root > .toast { pointer-events: auto; }
+
+/* 画面字幕、答题区避开播放器自己的控制条：进度条关着（默认）时，播放器控制条照常显示，底部预留 76 像素（浮动布局里本来就给进度条留了这一条） */
+.ov-root.ov-ownbar .cbar { pointer-events: auto; }
+
+/* 顶栏的片名让开右上角的控制区（控制区宽 318 像素、离右边 16 像素） */
+.ov-root .stage-top .top-title { max-width: max(120px, calc(100% - 400px)); }
+
+/* 提示卡 */
+.ov-login {
+  position: absolute; right: 16px; top: 16px; width: min(300px, calc(100% - 24px)); padding: 14px 16px; border-radius: 10px; pointer-events: auto;
+  background: #161226; border: 1px solid #332d4d; color: var(--text); font-size: 13px; line-height: 1.5; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+}
+.ov-login p { margin: 6px 0 10px; color: var(--muted); }

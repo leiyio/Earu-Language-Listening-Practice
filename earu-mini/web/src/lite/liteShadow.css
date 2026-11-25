@@ -1,0 +1,182 @@
+/* 播放界面：排在 styles.css 后面，进 shadow root。
+      播放界面是「歌词式」：组件 LiteSkin.jsx，由 Session 的 skin 挂进舞台、替掉浮动层（控制区 / 字幕列表 / 浮动答题区）。
+      两种形态，同一套零件、只是摆的地方不同：
+          窄屏（≤760px）：顶条、画面（满宽 16:9），下面整块是字幕 + 控制排；练习、设置是从下往上的抽屉
+          宽屏（≥761px）：顶条，左边画面、右边一栏（--lite-right）是字幕 + 控制排；练习、设置是这一栏里从下往上的抽屉
+      嵌入的在线播放器不许被盖住：画面（.lite-frame）只占自己那块，平时谁也不压着它（只有设置开着时整屏压暗）。
+   .lite-frame 在 shadow 里和 .ov-root 平级（排在它后面） */
+
+.ov-root, .lite-frame {
+  --lite-top: 48px;
+  --lite-right: min(440px, max(340px, 32vw));
+  --lite-vid: 0px;
+}
+
+.lite-frame {
+  position: absolute; display: block; top: var(--lite-top); bottom: 0; left: 0; right: var(--lite-right);
+  /* 画面要点得到：iPhone 不许网页替人开播，第一次一定要亲手点画面上的播放钮；点画面暂停 / 接着放也照常 */
+  background: #000; pointer-events: auto; z-index: 0;
+}
+.lite-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+/* 本地视频：画面是 .lite-frame 里的 <video>，整部片装进那块、不裁 */
+.lite-frame-local video { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; }
+
+/* 舞台要透明：.workspace 层级比 .lite-frame 高，舞台涂了底色就把画面盖住了；黑底由外面的 .lite-lp 给 */
+.ov-root .stage.is-ext { background: transparent; }
+.ov-root .workspace { z-index: 1; }
+
+/* 顶上那条：「← 片名」一直显示（不随闲置藏起来），不压画面 */
+.stage.idle .stage-top { opacity: 1; }
+.stage-top { height: var(--lite-top); padding-block: 0; }
+.ov-root .stage-top .top-title { max-width: calc(100% - var(--lite-right) - 60px); }
+
+/* 舞台自带的这些都不要：等数据的圈、左边缘「字幕列表」小拉手、进度条、画面下的字幕、放完的黑幕、右下角提示（字幕、进度条歌词式这层自己画） */
+.stage-wait { display: none; }
+.stage:has(.lm) :is(.cbar, .overlay-sub, .overlay-note, .end-cover, .stage-note) { display: none !important; }
+
+/* 窄屏：画面满宽在上 */
+@media (max-width: 760px) {
+  .ov-root, .lite-frame { --lite-right: 0px; --lite-vid: 56.25vw; }
+  .lite-frame { bottom: auto; height: var(--lite-vid); }
+  .ov-root .stage-top .top-title { max-width: calc(100% - 60px); }
+}
+
+/* 「歌词式」的零件（两种宽度共用；下面按宽度只改位置）：画面旁边只放字幕（当前句大、前后句淡），最底一排 循环 / 上一句 / 播放 / 下一句 / 设置；
+   练习、设置都是从下往上的抽屉，画面一直露着 */
+.lm {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none; color: var(--text);
+  --lm-top: calc(var(--lite-top) + var(--lite-vid));
+}
+.lm button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lm-main {
+  position: absolute; left: 0; right: 0; top: var(--lm-top); bottom: 0; pointer-events: auto;
+  display: flex; flex-direction: column; background: var(--bg);
+  /* 自成一层：列表里「回到当前句」圆钮的 z-index 只在这块里比，压不到设置 / 练习抽屉上面 */
+  isolation: isolate;
+}
+/* 字幕列表（同一份 LineList）：铺满控制区上面那块，去掉面板的边框圆角；字号跟设置里的「字号」走 */
+.lm-list { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lm-list .lines-panel { flex: 1; min-height: 0; border: 0; border-radius: 0; background: none; }
+.lm-list .lines { zoom: var(--lm-scale, 1); }
+.lm-bottom { flex: none; padding: 0 20px calc(18px + env(safe-area-inset-bottom, 0px)); }
+/* 「练这句」浮在列表右下角；「回到当前句」圆钮挪到它正上方，列表底下留出空，最后几句不被挡 */
+.lm-list { position: relative; }
+.lm-go { position: absolute; right: 12px; bottom: 12px; left: 12px; z-index: 3; display: flex; justify-content: flex-end; pointer-events: none; }
+.lm-go > * { pointer-events: auto; }
+.lm-pill { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); }
+.lm-list.has-go .lines-back { bottom: 64px; }
+.lm-list.has-go .lines { padding-bottom: 60px; }
+.lm-pill {
+  display: flex; align-items: center; gap: 6px; border: 0; background: var(--accent-fill); color: #fff !important;
+  font-weight: 700; font-size: 15px; padding: 9px 16px; border-radius: 20px;
+}
+.lm-prog { position: relative; height: 3px; background: var(--line); border-radius: 2px; cursor: pointer; touch-action: none; }
+.lm-prog::before { content: ''; position: absolute; left: 0; right: 0; top: -12px; bottom: -12px; }
+.lm-prog i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-grad); border-radius: 2px; }
+.lm-times { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+.lm-ctl { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; color: var(--text); }
+.lm-ib { width: 48px; height: 48px; display: grid; place-items: center; border: 0; background: none; border-radius: 50%; }
+.lm-ib.on { color: var(--accent-text); background: var(--accent-soft); }
+.lm-play { width: 66px; height: 66px; border-radius: 50%; border: 0; background: var(--accent-fill); color: var(--accent-ink) !important; display: grid; place-items: center; }
+
+/* 抽屉 */
+.lm-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); pointer-events: auto; }
+.lm-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; pointer-events: auto; overflow: auto; overscroll-behavior: contain;
+  background: var(--panel); border-radius: 22px 22px 0 0; padding: 10px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+}
+/* 设置、练这句两个抽屉打开时从下面滑上来，压暗那层淡入；
+   收起时由 slideOut.js 放一份影子往下滑回去。系统设了「减少动态效果」就不滑。0.38 秒，先快后慢 */
+.lm-sheet { animation: lm-slide-up 0.38s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lm-dim, .lm-prac-mask { animation: lm-fade-in 0.38s ease-out; }
+@keyframes lm-slide-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes lm-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .lm-sheet, .lm-dim, .lm-prac-mask { animation: none; } }
+/* 收起：影子（.is-leaving）往下滑走、压暗那层淡出，先慢后快 */
+.lm-sheet.is-leaving { animation: lm-slide-down 0.38s cubic-bezier(0.4, 0, 1, 1) forwards; pointer-events: none; }
+.lm-dim.is-leaving, .lm-prac-mask.is-leaving { animation: lm-fade-out 0.38s ease-in forwards; pointer-events: none; }
+@keyframes lm-slide-down { from { transform: none; } to { transform: translateY(100%); } }
+@keyframes lm-fade-out { from { opacity: 1; } to { opacity: 0; } }
+.lm-grab { display: block; width: 64px; height: 18px; margin: -4px auto 6px; border: 0; background: none; position: relative; }
+.lm-grab::after { content: ''; position: absolute; left: 12px; right: 12px; top: 6px; height: 5px; border-radius: 3px; background: var(--line); }
+.lm-prac { top: calc(var(--lm-top) + 30px); display: flex; flex-direction: column; }
+.lm { --lm-prac-gap: calc(44px + env(safe-area-inset-top, 0px)); }
+.lm-prac-mask { display: none; }
+/* 答案区里的词块是 <button>：上面 .lm button 的 font: inherit 比 .sort-tok 的 line-height: 1.25 硬，词块吃到整行行高（--tok-line），
+    比空格高一大截，这里按回去 */
+.lm .sort-tok { line-height: 1.25; }
+.lm-set { max-height: calc(100% - 96px); }
+.lm-prac-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.lm-prac-head .lm-seg { flex: 1; }
+.lm-prac-title { flex: 1; font-size: 16px; font-weight: 700; }
+.lm-pos { font-size: 13px; color: var(--muted); white-space: nowrap; }
+/* 练习抽屉头上的「循环难度」小胶囊和弹出框：胶囊只摆选了的几级，点开弹出六颗来改 */
+/* 跳过按钮：下面六格小色条＝循环难度（跳过只去这几级），右边小三角点开改 */
+.lm-skip { flex: 1; position: relative; display: flex; min-width: 0; }
+.lm-skip > .lm-btn { flex-direction: column; gap: 5px; min-width: 0; }
+.lm-skip:has(.lm-skip-ar) > .lm-btn { border-radius: 12px 0 0 12px; }
+.lm-skip-t { display: flex; align-items: center; gap: 6px; }
+
+   /* 小框按六颗难度的宽度收窄，不铺满 */
+.lm-prac-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+.lm-prac-body .sort-panel { flex: 0 1 auto; min-height: 0; background: none; border: 0; border-radius: 0; padding-inline: 0; --tok-fs: 17px; --tok-line: 42px; }
+/* 答题区自己不再套一层滚动（套着时窄屏上答案框被裁掉半截），放不下整块在 .lm-prac-body 里滚 */
+.lm-prac-body .sort-panel { flex: none; }
+.lm-prac-body .sort-body { flex: none; overflow: visible; }
+/* 手机上打字（键盘弹着）：抽屉铺满键盘上面看得见的那块（位置由 LiteSkin 的 useKeyboardBox 给），拉手、今日进度先收起 */
+.lm-prac.is-kb { border-radius: 0; padding-top: 10px; padding-bottom: 8px; z-index: 3; }
+.lm-prac.is-kb > .lm-grab { display: none; }
+.lm-prac.is-kb .lm-prac-head { margin-bottom: 6px; }
+.lm-prac.is-kb .lm-btnrow { margin-top: 8px; }
+.lm-prac.is-kb .lm-btn { height: 40px; }
+/* 窄屏：练习抽屉铺满整屏（顶条、画面都盖住），长句、排序拖动才放得开；
+   收起照旧点顶上的拉手。宽屏不变（右边那一栏里的抽屉） */
+@media (max-width: 760px) {
+  /* 顶上留一条缝：缝里压暗、点一下收起练习 */
+  .lm-prac { top: var(--lm-prac-gap); z-index: 3; }
+  .lm-prac-mask { display: block; position: absolute; left: 0; right: 0; top: 0; height: calc(var(--lm-prac-gap) + 22px); z-index: 3; pointer-events: auto;
+    border: 0; padding: 0; background: rgba(0, 0, 0, 0.55); -webkit-tap-highlight-color: transparent; }
+}
+.lm-btnrow { display: flex; gap: 10px; margin-top: 12px; flex: none; }
+.lm-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; height: 46px;
+  border: 0; border-radius: 12px; background: var(--panel-2); font-size: 15px; color: var(--text) !important;
+}
+.lm-seg { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; gap: 3px; }
+.lm-seg button { flex: 1; min-width: 0; border: 0; background: none; font-size: 14px; padding: 7px 6px; border-radius: 8px; color: var(--muted) !important; white-space: nowrap; }
+.lm-seg button.on { background: var(--line); color: #fff !important; font-weight: 700; }
+.lm-seg button:disabled { opacity: 0.4; cursor: default; }
+.lm-set-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.lm-glabel { font-size: 13px; color: var(--muted); margin: 0 4px 6px; }
+.lm-grp { background: var(--panel-2); border-radius: 14px; padding: 0 16px; margin-bottom: 14px; }
+.lm-row2 { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+.lm-row2:last-child { border-bottom: 0; }
+.lm-row2 > span { flex: none; }
+.lm-row2 .lm-seg { width: min(220px, 62%); }
+.lm-tog { flex: none; width: 46px; height: 28px; border-radius: 14px; border: 0; background: var(--line); position: relative; padding: 0; }
+.lm-tog::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 11px; background: #fff; top: 3px; left: 3px; transition: left 0.15s ease; }
+.lm-tog.on { background: var(--accent-fill); }
+.lm-tog.on::after { left: 21px; }
+.lm-tog:disabled { opacity: 0.4; cursor: default; }
+
+/* 视频 / 字幕出问题的提示（控制区那块 trackPanel）：平时空着不占地方 */
+.lm-track { flex: none; padding: 10px 16px 0; }
+.lm-track:empty { display: none; }
+.lm-track .panel { margin: 0 0 8px; padding: 0; background: none; border: 0; box-shadow: none; }
+/* 「练这句」练不了时灰着，点了旁边说原因 */
+.lm-go { align-items: center; gap: 10px; }
+.lm-pill.off { background: var(--panel-2); color: var(--muted) !important; }
+.lm-note { flex: 1; min-width: 0; font-size: 13px; color: var(--warn); text-align: end; text-shadow: 0 1px 3px #000; }
+/* 循环难度胶囊 */
+
+/* 轻量桌面web版：上面那套搬进右边一栏，字大一号。
+   这一栏从最顶上一直到底，顶条只管左边画面那块 */
+@media (min-width: 761px) {
+  .lm-main { left: auto; right: 0; width: var(--lite-right); top: 0; border-left: 1px solid var(--line); }
+  .lm-bottom { padding: 0 24px 20px; }
+  .lm-ib:hover { background: rgba(255, 255, 255, 0.07); }
+  .lm-sheet { left: auto; width: var(--lite-right); border-radius: 18px 18px 0 0; }
+  .lm-prac { top: 12px; }
+  .lm-set { max-height: calc(100% - 24px); }
+}

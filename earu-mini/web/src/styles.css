@@ -1,0 +1,1428 @@
+:root {
+  /* 深色底带一点紫调（Design 画布「听读ICU 紫色界面方案」）：页面底、面板、再亮一层、分隔线、正文、次要字。
+     别处写死的灰也照这个换过：明度照旧、色相挪到紫（原来是偏蓝的灰） */
+  --bg: #0f0d17;
+  --panel: #17142a;
+  --panel-2: #1f1b36;
+  --line: #2d2846;
+  --text: #ece9f7;
+  --muted: #9a94b8;
+  /* 主色紫 #7c3aed，和新标志（声波箭头）同一色系；原来是青绿 #0fa394 配深色字。
+     实心按钮（主按钮、精听｜排序的选中态、难度档的选中、跟读的录音按钮）紫底白字 5.70:1。悬停、按下都往暗里走：
+     --accent-fill-hi #6d28d9 7.10:1、--accent-fill-down #5b21b6 8.98:1（名字是青绿那时候留下的「提亮」，紫色提亮以后白字不到 4.5:1，不能提亮）。
+     #7c3aed 压在深底上只有 3.2:1：当边框、下划线、聚焦框、进度条够（3:1），当字不够——深底上的紫色字一律用 --accent-text */
+  --accent: #7c3aed;
+  --accent-fill: #7c3aed;
+  --accent-fill-hi: #6d28d9;
+  --accent-fill-down: #5b21b6;
+  --accent-ink: #ffffff;     /* 实心紫底上的字、图标：一律白字（作废） */
+  --accent-soft: rgba(124, 58, 237, 0.22);
+  --accent-text: #cdb4f8;    /* 深底上的紫色字、链接、「选中」的字（对面板底 9.8:1，叠在 --accent-soft 上也有 7.5:1） */
+  --accent-bright: #a78bfa;  /* 视频画面上「开着」的图标：得和旁边的白色图标一眼分开 */
+  --accent-2: #e04ba9;       /* 渐变的尾色玫红（标志的竖条就是紫 → 玫红）：只给进度条、计时环这类渐变的尾巴，不单独当字或按钮的颜色 */
+  --accent-grad: linear-gradient(90deg, var(--accent), var(--accent-2));
+  --loop: #f5a524;
+  --loop-soft: rgba(245, 165, 36, 0.14);
+  --bad: #ff6b6b;
+  --bad-soft: rgba(255, 107, 107, 0.12);
+  --warn: #f5c451;
+  --warn-soft: rgba(245, 196, 81, 0.1);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+button, select { font: inherit; color: inherit; }
+/* 字重只用 400 和 700：有的电脑另外装了「微软雅黑 Semibold / Heavy」（不是 Windows 自带的），Chrome 会把 500、600
+   画成外装的 Semibold、800 和 900 画成外装的 Heavy，看着像换了一种字体（选中的按钮不是加粗，而是字体都变了）。
+   所以全站一起改：半粗一律改常规，选中只靠变白、紫线、底色；特粗改原装粗体 700。
+   <b>、<strong> 默认是「比外面再粗一档」，套在 700 里会到 900，钉死在 700 */
+b, strong { font-weight: 700; }
+/* 繁體界面：繁體字照台湾的字形画——Windows 微软正黑体、苹果苹方繁体（上面只列了雅黑、苹方简体，繁體字会画成大陆字形）。
+   正黑体里简体字也齐（GB2312 的 6763 个都有，第五轮复查查过），夹在界面里的简体学习内容（字幕翻译、单词的中文选项）照样画得出来；
+   标了 lang="zh-CN" 的（词卡释义、设置里「简体中文」那颗）照旧用简体字体。安卓不用写：系统字体按 <html lang> 自己挑繁體字形 */
+html:lang(zh-TW) body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+html:lang(zh-TW) [lang="zh-CN"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+/* 设置里界面语言下拉框的「繁體中文」那一项：别的界面语言下也用繁體字体（语言名用它自己的字写） */
+/* 日、韩、阿拉伯语界面：日文用日文字体画（雅黑画假名、汉字是大陆字形）；韩文、阿拉伯文雅黑里没有，系统会找替补，这里直接点名。
+   标了 lang="zh-CN" 的学习内容（AI 中文字幕、词卡释义）照旧简体字体。字重照旧只用 400 / 700 */
+html:lang(ja) body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; }
+html:lang(ko) body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+html:lang(ar) body { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Geeza Pro", "Noto Sans Arabic", Tahoma, sans-serif; }
+/* 印地语界面：天城文照系统自带字体画（Windows Nirmala UI、苹果 Kohinoor / Devanagari Sangam MN）；字重只用 400 / 700 */
+html:lang(hi) body { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Nirmala UI", "Kohinoor Devanagari", "Devanagari Sangam MN", sans-serif; }
+html:is(:lang(ja), :lang(ko), :lang(ar), :lang(hi)) [lang="zh-CN"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+/* 阿拉伯语界面：整个播放器左右镜像、从右往左（规则在这个文件最后一节，都挂在 :root[dir="rtl"] 下）。
+   视频画面、进度条、播放控制、英文学习内容照旧从左往右（组件上标 dir="ltr"）。阿拉伯字母是连写的，字距一拉开就断，界面上加过字距的地方一律去掉 */
+html:lang(ar) body * { letter-spacing: 0 !important; }
+
+.app { height: 100%; display: flex; flex-direction: column; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+/* 顶栏（播放器方案 A）：一行 44px，左边页签（视频 / 生词本 N / 跟读🔒 / 每日小测🔒），右边圆头像。
+   .bar-in 没开视频时和下面的内容（.page-wrap）一样宽、居中：1440 宽时第一个页签的字和头像跟内容左右对齐，不贴窗口边；
+   开着视频（.is-wide）跟视频一样通栏。z 35：盖过页签页（30），用户菜单才不会被生词本页压住 */
+.tab {
+  position: relative; display: inline-flex; align-items: center; gap: 5px; padding: 0 12px;
+  background: none; border: 0; cursor: pointer; color: var(--muted); font-size: 14px; white-space: nowrap;
+}
+.tab:first-child { padding-left: 0; }
+.tab:hover { color: var(--text); }
+.tab.on { color: var(--text); font-weight: 400; }
+.tab.on::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); }
+.tab:first-child.on::after { left: 0; }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -6px; border-radius: 8px; }
+/* 锁着的页签能点（点进去是「循序渐进」那一页），不是禁用：字对顶栏底要够 4.5:1。#8b85a8 是 5.1:1，比普通页签（--muted，6.2:1）暗一档，
+   旁边还有小锁，看得出锁着（换紫色以后照同样的规矩重挑） */
+.tab.is-locked { color: #8b85a8; }
+.tab.is-locked.on { color: var(--muted); }
+/* 跟读、每日小测开锁以后页签上的小记号（06 §1.2 的状态色搬到页签上，文字不变）：琥珀点 = 做到一半，绿勾 = 做完 / 系统跳过；能做还没做的不加 */
+/* 看视频时页签后面接片名（剧名加粗），× 关掉视频回最近播放 */
+/* 右上角圆头像：圆里是默认头像（小人图标，打码手机号在点开的菜单里）；点开小菜单 */
+.account { position: relative; flex: none; }
+.avatar {
+  width: 34px; height: 34px; padding: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: #282340; border: 1px solid #3b3557; color: #dddaf3; font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.avatar:hover, .avatar.open { border-color: var(--accent); color: var(--text); }
+
+/* 用户菜单是「分组平铺」的一列行：用户行、各种 .mi 菜单行、两个分组（小标题 + 行）、分隔线、退出登录 */
+/* 视频网站两行（desktop/DesktopSiteBadges.jsx）：图标保留各站的颜色，没登录 / 查不到 / 正在查的图标淡一点；行尾是 .mi-end 那段字 */
+/* 退出确认：问句占满一行，两个按钮排在下一行（外语问句和按钮名都长，放一行会折行、越出菜单边框） */
+.mi {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 8px; background: none;
+  color: var(--text); font-size: 13.5px; text-align: left; text-decoration: none; cursor: pointer;
+}
+.mi:hover, .mi:focus-visible, .mi.open { background: #292441; outline: 0; }
+.mi svg { flex: none; color: var(--muted); }
+.mi.is-out, .mi.is-out svg { color: #ff9b9b; }
+
+   /* 一出来焦点在整张卡上（防误按拿回），卡不画焦点框 */
+.member {
+  width: min(440px, 100%); max-height: 100%; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes member-spin { to { transform: rotate(360deg); } }
+
+/* 桌面版（window.earuShell）顶栏「回到首页」：形状同头像；没登录时 /app 没有顶栏，贴在窗口右上角（components/DesktopBits.jsx） */
+
+/* 顶栏下面的那一块：起始页、播放器，别的页签那一页盖在上面（absolute，播放器不卸载、尺寸不变） */
+/* 内容区跟着窗口变宽（两边太空了」）：最宽 1600，两边至少各留 32；顶栏 .bar-in 用同一个宽度、左右对齐 */
+:root { --page-w: min(1600px, calc(100% - 64px)); }
+.meter { flex: 1; min-width: 80px; height: 6px; border-radius: 3px; background: #292441; overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 3px; background: var(--accent-grad); transition: width .3s ease; }
+
+/* 按钮 */
+.btn {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 12px; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { border-color: #423c5f; background: #27223f; }
+.btn.primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+/* 悬停、按下各压暗一档（紫底提亮以后白字不到 4.5:1，见 :root）。首页的主按钮也是 .btn.primary：打包后 landing.css 排在这个文件前面
+   （main.jsx 先引 App → Landing → landing.css，再引这里），同权重是这里赢、会把它刷成这里的颜色——所以 landing.css 用多一个伪类的规则
+   把边框、底色钉回首页自己那套（ui-test「收尾·首页主按钮」按打包顺序算层叠）。这里的主按钮状态别再往上加权重，加了要同步改 landing.css */
+.btn.primary:hover { background: var(--accent-fill-hi); border-color: var(--accent-fill-hi); }
+.btn.primary:active { background: var(--accent-fill-down); border-color: var(--accent-fill-down); }
+.btn.big { padding: 12px 28px; font-size: 16px; border-radius: 10px; }
+.btn.small { padding: 2px 8px; font-size: 12px; }
+.btn.chip { padding: 4px 10px; }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+/* 灰着的按钮要看得出来：设置面板的「保存」没改动时是灰的，原来还是亮蓝色，点了没反应也看不出为什么 */
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:not(.primary):disabled:hover { border-color: var(--line); background: var(--panel-2); }
+.btn.primary:disabled:hover { background: var(--accent-fill); border-color: var(--accent-fill); }
+
+/* 提示条 */
+.banner {
+  margin: 12px 20px 0; padding: 10px 14px; border-radius: 8px; display: flex; gap: 12px; align-items: center;
+}
+.banner button { margin-left: auto; background: none; border: 0; cursor: pointer; font-size: 18px; color: inherit; }
+.banner.error, .notice.error { background: var(--bad-soft); border: 1px solid rgba(255, 107, 107, 0.35); color: #ffb3b3; }
+.notice { padding: 8px 12px; border-radius: 8px; margin-bottom: 10px; }
+.notice.warn { background: var(--warn-soft); border: 1px solid rgba(245, 196, 81, 0.3); color: #f3d991; }
+
+/* ---- 播放器起始页（方案 A）：今日一行（不套卡片）、打开视频（有播放记录时缩成一行）、最近播放 ---- */
+.home { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* 全部做完才变绿（06 §1.4：达标 ≠ 今天做完） */
+.meter.is-done i { background: var(--ok); }
+
+.drop-overlay {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  background: rgba(15, 13, 23, 0.85); border: 3px dashed var(--accent); font-size: 22px; pointer-events: none;
+}
+
+/* 工作区 */
+.workspace {
+  flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 16px; padding: 16px 20px;
+}
+.left { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.right { min-height: 0; display: flex; }
+
+.stage { position: relative; background: #000; border-radius: 10px; overflow: hidden; }
+.stage video { display: block; width: 100%; max-height: calc(100vh - 290px); min-height: 200px; background: #000; }
+.stage:fullscreen video { max-height: 100vh; height: 100%; }
+/* 等数据时画面正中的圈（Player.jsx buffering）：圈本身借示例片卡上那个（.sample-spin），不挡点击；压在字幕下面、控制条下面 */
+.stage-wait { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 1; }
+.stage-wait .sample-spin { position: static; }
+/* 放完：黑底盖住画面、正中重播钮（Player.jsx end-cover）。层级同等数据的圈（1）、排在它后面；画面字幕、注释放完时不画，
+   顶栏（stage-top，也是 1、排在后面）、字幕列表、控制区、控制条都压在它上面照常能用 */
+.end-cover { position: absolute; inset: 0; z-index: 1; background: #000; display: grid; place-items: center; }
+.end-replay {
+  width: 76px; height: 76px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; transition: background .15s, transform .15s;
+}
+.end-replay:hover { background: rgba(255, 255, 255, 0.24); transform: scale(1.06); }
+.end-replay:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.overlay-sub {
+  /* 位置固定，不随控制条显隐上下跳 */
+  position: absolute; left: 0; right: 0; bottom: 12%; text-align: center; pointer-events: none; padding: 0 calc(var(--sub-w, 100%) * 0.08);
+  display: flex; flex-direction: column; align-items: center; gap: 2px; z-index: 2;
+  /* 字幕行宽限在画面实际显示的宽里：4:3、竖屏片 video 元素铺满舞台、画面 contain 后两侧是黑边，
+     行宽按整个舞台排的话字幕会伸进黑边（画面外）。subSize.js 量着画面写 --sub-w（和字号用同一个缩放比，不另算一套；比 4:3 窄的竖屏片至少给同高 4:3 的宽），这里取它做上限并居中；
+     左右留白也按它的 8% 算（没量到 / 画中画 / 横屏铺满时 --sub-w 没有或等于舞台宽，退回原来的 100% × 8%）。窄屏版的覆盖在文件后面「窄屏版」那一节里 */
+  max-width: var(--sub-w, none); margin-inline: auto;
+}
+/* 影片字幕样式：白色粗体、黑色描边、没有底块。
+   字号按视频画面实际显示的宽算：
+   --sub-fs = clamp(16, 16 + (宽 − 650) × 0.014966, 38)px × 控制区选的档位（0.7 / 0.85 / 1 / 1.15 / 1.35，最小 12px），components/subSize.js 量着画面写上去。
+   这里的是还没量到时的底（第一帧、服务端渲染）：按舞台宽 100vw 算、档位 1。1920 宽全屏约 35px、1280 宽约 25px、960 宽约 21px。
+   原文、译文一样大；浮动答题区底栏母语（.float-prac .sort-zh）、注释、「正在获取翻译」都从 --sub-fs 取 */
+.stage { --sub-fs: clamp(16px, calc(16px + (100vw - 650px) * 0.014966), 38px); }
+.overlay-sub span {
+  display: inline-block; white-space: pre-line; line-height: 1.35; color: #fff; font-weight: 700;
+  font-size: var(--sub-fs);
+  -webkit-text-stroke: 0.6px rgba(0, 0, 0, 0.85); paint-order: stroke fill;
+  text-shadow: 0 0 3px #000, 0 1px 3px #000, 0 0 1px #000;
+}
+/* 原文、译文都不照原文换行（
+   「其他语言的字幕应该都一样」）：整句是几条原字幕拼的，带 - 的对白各占一行，改成连成一段、按宽度折行。
+   .en 是各种在学语言的原文（LearnText），.zh 是各种母语的译文；多行时每行以「- 」开头（文本契约），换行变成空格正好隔开两句对白。
+   字幕列表（.line .zh）照旧一句对白一行 */
+.overlay-sub :is(.en, .zh) { white-space: normal; }
+/* 「正在获取中文翻译…」和字幕一样用粗体、只换成灰色：
+   原来是常规字重 + 六成透明，细笔画被黑描边和阴影吃掉，看着发虚、像换了一种字体 */
+.overlay-sub .zh.pending { color: #c4c4c4; font-size: calc(var(--sub-fs) * 0.7); }
+/* 「正在获取…翻译」前面四根声波竖条依次跳（呼应耳如图标的声波；组件 TrPending.jsx）。
+   画面上那句是上面这条的 0.7 倍字号、灰色；练习（排序、听写）的译文行本来是整号白字，这里也缩到 0.7 倍、灰色，两处一样大
+   。竖条用品牌紫，加一圈黑影，亮画面上也看得见 */
+/* 画面上 .overlay-sub span 给每个 span 都定整号白字、inline-block（连这里面的也算）：压回跟着外面那行（.zh.pending 的 0.7 倍灰字），手机、画中画那几条也压得住 */
+.overlay-sub .zh.pending :is(.tr-pending, .tr-wave) { display: inline-flex; font-size: inherit; color: inherit; }
+@keyframes tr-wave { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-left: 8px; }
+.tag.bad { background: var(--bad-soft); border: 1px solid rgba(255, 107, 107, 0.4); }
+
+/* 字幕列表 */
+.lines-panel {
+  position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+}
+.lines-head {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 400;
+}
+.lines-head .btn { margin-left: auto; font-weight: normal; }
+.lines-empty { padding: 24px; text-align: center; }
+.lines { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; min-height: 0; }
+/* 滚动条全站一套：细的深色圆角、淡紫滑块、没有上下箭头，鼠标移进去变亮。
+   起先只给字幕列表（不写就是系统白底带箭头的那种）；
+   所有会滚的地方（整页、下拉列表、控制区等）都用这套。
+   shadow root 里的样式只管自己的元素，碰不到宿主页面本身的滚动条。
+   Chrome / Edge / Electron 走 ::-webkit-scrollbar（元素上算出来有 scrollbar-color / scrollbar-width 就不认这套，所以别处别写，
+   scrollbar-color 还会往下继承）；火狐走 scrollbar-color */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+::-webkit-scrollbar-thumb { background: rgba(205, 180, 248, 0.22); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+:hover::-webkit-scrollbar-thumb { background-color: rgba(205, 180, 248, 0.38); }
+::-webkit-scrollbar-thumb:active { background-color: rgba(205, 180, 248, 0.55); }
+@supports not selector(::-webkit-scrollbar) { * { scrollbar-width: thin; scrollbar-color: rgba(205, 180, 248, 0.3) transparent; } }
+/* 一行（我想要 A」）：不描边，当前句 / 循环句是一层淡底 + 左边一道 3px 色条；
+   右边一列两颗图标（解析在上、循环在下），平时藏着，悬停这一行才出，当前句、循环句一直出。左边多留几像素给色条 */
+.line {
+  display: grid; grid-template-columns: 42px minmax(0, 1fr) 30px; column-gap: 8px; align-items: start;
+  padding-block: 9px; padding-inline: 12px 6px; border-radius: 8px; cursor: pointer;
+}
+.line + .line { margin-top: 2px; }
+/* 边读边出：读到的几段之间中间没读到，画一条不写字的细虚线隔开 */
+.lines-gap { height: 0; margin: 10px 14px; border-top: 1px dashed var(--line); }
+.line:hover { background: var(--panel-2); }
+.line .time { color: var(--muted); font-size: 12px; line-height: 22px; font-variant-numeric: tabular-nums; }
+.line .text { white-space: pre-line; min-width: 0; }
+.line.current { background: rgba(124, 58, 237, 0.16); box-shadow: inset 3px 0 0 var(--accent); }
+.line.current .time { color: var(--accent-text); }
+.line.current .en { color: #fff; }
+.line.looping { background: var(--loop-soft); box-shadow: inset 3px 0 0 var(--loop); }
+.line.looping .time { color: var(--loop); }
+.line-acts { display: flex; flex-direction: column; gap: 2px; }
+.line-acts button {
+  width: 30px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px;
+  background: transparent; color: var(--muted); cursor: pointer; opacity: 0;
+}
+.line:hover .line-acts button, .line.current .line-acts button, .line.looping .line-acts button, .line-acts button:focus-visible { opacity: 1; }
+.line-acts button:hover { background: rgba(255, 255, 255, 0.07); color: var(--text); }
+.line.current .line-acts button { color: var(--accent-text); }
+.line.looping .line-acts button { color: var(--loop); }
+/* 这句还不能循环（远程片字幕没整理、译文没到）：列表里这句的循环钮灰着 */
+.line .line-acts button.loop-btn:disabled { opacity: 0.3; cursor: default; background: none; }
+
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: minmax(0, 1fr) 360px; }
+}
+
+/* 手机宽度：顶栏别把页面撑出屏幕。
+   手机目前不支持（页面上有提示），顶栏只留页签、换视频和头像：小图标、片名、页签上的锁、浮动 / 侧栏藏掉，页签收紧 */
+@media (max-width: 560px) {
+  
+  .tab { padding: 0 7px; font-size: 13px; }
+
+}
+
+/* 放到桌面 */
+.install { position: relative; }
+
+/* ---- 播放器控制条 ---- */
+.stage { cursor: default; user-select: none; }
+.stage.idle { cursor: none; }
+.cbar {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 28px 16px 6px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.75));
+  color: #fff; transition: opacity .25s;
+}
+.stage.idle .cbar { opacity: 0; pointer-events: none; }
+/* 顶栏：画面顶上一条渐变，左边「← 片名」，和控制条一起出、一起藏。
+   整条不接鼠标（点画面照旧是平台的），只有箭头接；藏起来时箭头也不接，免得看不见还误点离开。
+   层级压在字幕列表（浮动层，z-index 2）下面：列表开着就盖住标题和箭头。
+   尺寸和位置：整条高 50、左右各空 16、离顶 8；
+   箭头钮 28 见方、图标 20；片名 20 像素、行高 28、和箭头隔 8；渐变 0.5 黑到透明。
+   字重只用 400 / 700，这里用 700 */
+.stage-top {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px;
+  padding-block: 8px 14px; padding-inline: 16px; pointer-events: none;
+  /* 顶上那条黑色渐变去掉，只留箭头和片名，片名靠字影压在画面上 */
+  color: #fff; transition: opacity .25s;
+}
+.stage.idle .stage-top { opacity: 0; }
+.stage-top .top-back {
+  flex: none; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: #fff; cursor: pointer; pointer-events: auto;
+}
+.stage-top .top-back:hover { background: rgba(255, 255, 255, 0.1); }
+/* 箭头和片名一样带字影（否则不容易看到」）：SVG 没有 text-shadow，用同参数的 drop-shadow */
+.stage-top .top-back svg { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)); }
+.stage.idle .stage-top .top-back { pointer-events: none; }
+/* 桌面版无边框窗口：顶栏「← 片名」那一行空白处按住能拖动窗口。只在顶栏露着、不全屏、上面没盖东西时拖：
+   Electron 的拖动区不看谁盖在上面、也不看透明度，藏起来、浮动字幕列表或弹窗盖着时还拖就会吃掉点画面 / 点列表。
+   字幕列表开着（浮动或贴边）一律不拖：贴边时拖动区紧挨着列表右边，真机上把列表头的关闭钮吃掉了 */
+.stage.is-ext:not(.idle):not(.is-fs):not(.list-open):not(.list-side) .stage-top { -webkit-app-region: drag; }
+.stage-top .top-back { -webkit-app-region: no-drag; }
+/* 放广告（和直播）时只留的那条顶栏（overlay/OverlayApp.jsx AdTopBar）：没有舞台、没有闲置，一直能拖（全屏时整条不出） */
+.stage:has([role="dialog"], [aria-modal="true"]) .stage-top { -webkit-app-region: no-drag; }
+/* 浮在顶栏上的面板先接住鼠标：拖动区只按页面先后算、后声明的 no-drag
+   挖掉前面的 drag。控制区、答题区、字幕列表都在 Player 里 .stage-top 后面渲染，词卡在整个 main 后面，所以各自标 no-drag 就从拖动区里挖出来。
+   闲置的答题区透明、不接鼠标，不挖（不然那块空着也拖不动窗口） */
+.float-prac:not(.is-idle) { -webkit-app-region: no-drag; }
+.stage-top .top-title {
+  min-width: 0; font-size: 20px; font-weight: 700; line-height: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.cb-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 44px; }
+.cb-left, .cb-right { display: flex; align-items: center; gap: 6px; }
+.cb-btn {
+  width: 40px; height: 40px; display: grid; place-items: center; padding: 0;
+  background: none; border: 0; border-radius: 8px; color: #fff; cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)); transition: background .15s, color .15s;
+}
+.cb-btn:hover { background: rgba(255, 255, 255, 0.14); }
+/* 灰着：远程片字幕还没整理、这句译文没到时的「循环」（state.loopLocked） */
+.cb-btn:disabled { opacity: 0.4; cursor: default; }
+.cb-btn:disabled:hover { background: none; }
+.cb-btn.on { color: var(--accent-bright); }
+/* 置顶钮（desktop/WinButtons.jsx WinPinButton）：开着时图钉实心、转 -30°，和其他图钉一样 */
+/* 视频下面那条控制条上的「循环」（侧栏布局、画中画小窗里）：开着时也是琥珀，和手机大按钮、浮动控制区一个颜色 */
+.cbar .cb-btn.cb-loop.on { color: var(--loop); }
+.cb-text { width: auto; padding: 0 10px; font-size: 15px; white-space: nowrap; }
+.cb-time { margin-left: 8px; font-size: 15px; color: rgba(255, 255, 255, 0.65); font-variant-numeric: tabular-nums; }
+.cb-time b { color: #fff; font-weight: 400; }
+
+.cb-progress { position: relative; height: 16px; display: flex; align-items: center; cursor: pointer; touch-action: none; }
+.cb-track { position: relative; width: 100%; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.25); transition: height .15s; }
+.cb-progress:hover .cb-track, .cb-progress.dragging .cb-track { height: 6px; }
+.cb-buf { position: absolute; inset: 0 auto 0 0; background: rgba(255, 255, 255, 0.35); border-radius: 2px; }
+.cb-played { position: absolute; inset: 0 auto 0 0; background: var(--accent-grad); border-radius: 2px; }
+/* 远程片边读边出：字幕读到的段，贴在条下沿（ControlBar.jsx useReadRanges） */
+.cb-read { position: absolute; top: calc(100% + 2px); height: 2px; background: rgba(255, 255, 255, 0.7); border-radius: 1px; pointer-events: none; }
+.cb-thumb {
+  position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.6); opacity: 0; transition: opacity .15s;
+}
+.cb-progress:hover .cb-thumb, .cb-progress.dragging .cb-thumb { opacity: 1; }
+.cb-tip {
+  position: absolute; bottom: 20px; transform: translateX(-50%); padding: 2px 8px; border-radius: 4px;
+  background: rgba(0, 0, 0, 0.8); font-size: 12px; pointer-events: none; white-space: nowrap;
+}
+
+.cb-volume { position: relative; display: flex; align-items: center; }
+/* 竖着的音量条，弹在喇叭正上方；padding-bottom 把弹层和按钮连起来，鼠标移上去不会断 */
+.cb-vol-pop {
+  position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); padding-bottom: 6px;
+  display: none;
+}
+.cb-volume:hover .cb-vol-pop, .cb-volume.dragging .cb-vol-pop { display: block; }
+.cb-vol-pop::before {
+  content: ''; position: absolute; inset: 0 0 6px; border-radius: 8px;
+  background: rgba(20, 22, 28, 0.92); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.cb-vol-num { position: relative; width: 40px; text-align: center; padding-top: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.cb-vol-track {
+  position: relative; width: 40px; height: 110px; margin: 6px 0 12px; cursor: pointer; touch-action: none;
+}
+.cb-vol-track::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px;
+  border-radius: 2px; background: rgba(255, 255, 255, 0.3);
+}
+.cb-vol-fill {
+  position: absolute; left: 50%; bottom: 0; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--accent);
+}
+.cb-vol-knob {
+  position: absolute; left: 50%; width: 12px; height: 12px; margin: 0 0 -6px -6px; border-radius: 50%; background: #fff;
+}
+
+.cb-menu-wrap { position: relative; }
+.cb-menu {
+  position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); list-style: none; margin: 0; padding: 6px;
+  background: rgba(20, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; min-width: 76px;
+}
+.cb-menu button {
+  display: block; width: 100%; padding: 6px 12px; border: 0; border-radius: 6px; background: none; color: #fff;
+  cursor: pointer; font-size: 14px; text-align: center;
+}
+.cb-menu button:hover { background: rgba(255, 255, 255, 0.12); }
+.cb-menu button.on { color: var(--accent-bright); font-weight: 400; }
+/* 往下开的菜单（PopMenu down；控制区的播放方式菜单）：贴着按钮下沿，不再贴控制条底边 */
+.cb-menu.is-down { bottom: auto; top: calc(100% + 6px); }
+/* 画质菜单：名字和锁排一行，不折行 */
+.cb-q-menu button { display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+.cb-q-menu button svg { opacity: 0.75; flex: none; }
+
+.stage:fullscreen .cbar { padding: 40px 28px 12px; }
+.stage:fullscreen .cb-btn { width: 46px; height: 46px; }
+.stage:fullscreen .cb-btn svg { width: 28px; height: 28px; }
+.stage:fullscreen .cb-btn.cb-text { width: auto; padding: 0 12px; font-size: 17px; }
+
+/* ---- 画中画 ---- */
+.video-slot { display: contents; }
+.pip-body { margin: 0; background: #000; overflow: hidden; }
+.stage.in-pip { position: fixed; inset: 0; border-radius: 0; }
+.stage.in-pip video { width: 100%; height: 100vh; max-height: none; min-height: 0; object-fit: contain; }
+.stage.in-pip .cbar { padding: 20px 8px 2px; }
+.stage.in-pip .cb-time { font-size: 13px; }
+.stage.in-pip .overlay-sub span { font-size: clamp(14px, 4.2vw, 26px); }
+.pip-placeholder {
+  aspect-ratio: 16 / 9; max-height: calc(100vh - 290px); width: 100%; border-radius: 10px; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted);
+}
+
+/* ---- 起始页的最近播放：一排 4 张卡（多的收起来，「全部 N 个」点开）；手机宽度一排 2 张 ---- */
+.recent { margin: 28px 0 0; }
+.recent-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.recent-head h2 { margin: 0; font-size: 15px; font-weight: 400; }
+.recent-more { margin-left: auto; padding: 0; border: 0; background: none; color: var(--accent-text); font-size: 13px; cursor: pointer; }
+.recent-more:hover { text-decoration: underline; }
+/* 一排几张跟着内容区宽度走：每张至少 260 宽，放得下几张就几张（auto-fill：片子少时卡片大小不变、靠左排，不拉成一大块）；手机一排 2 张 */
+.recent-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .recent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* 卡竖排、按钮撑满：一排里有张卡多一行（示例片的署名）时，别的卡的框也跟着拉到一样高，底边对齐。
+   按钮里面也竖排、靠上：按钮默认把内容上下居中，拉高以后海报上面会空出一条 */
+.recent-card { position: relative; display: flex; flex-direction: column; }
+.recent-open {
+  display: flex; flex-direction: column; justify-content: flex-start; flex: 1 0 auto; width: 100%; padding: 0; text-align: left; cursor: pointer; color: inherit;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .15s, transform .15s;
+}
+.recent-open:hover { border-color: var(--accent); transform: translateY(-2px); }
+.recent-thumb { position: relative; aspect-ratio: 16 / 9; background: #000; display: grid; place-items: center; overflow: hidden; }
+.recent-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.recent-ph { color: #413b5e; font-size: 32px; }
+.recent-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.recent-bar div { height: 100%; background: var(--accent-grad); }
+.recent-play {
+  position: absolute; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; padding-left: 4px;
+  background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 18px; opacity: 0; transition: opacity .15s;
+}
+.recent-open:hover .recent-play { opacity: 1; }
+/* 片名是 parseTitle 整理过的短名（Family Guy · S20E01 LASIK Instinct），一行放不下就省略号，完整文件名在悬停提示里 */
+.recent-name { padding: 8px 10px 0; font-size: 13.5px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-meta { padding: 1px 10px 9px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-meta.is-done { color: var(--ok-text); }
+.recent-dur { position: absolute; right: 6px; bottom: 8px; padding: 0 6px; border-radius: 4px; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 11px; line-height: 18px; font-variant-numeric: tabular-nums; }
+.recent-card.nohandle .recent-open { opacity: 0.6; }
+.recent-del {
+  position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; border: 0; cursor: pointer;
+  background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 16px; line-height: 1; opacity: 0; transition: opacity .15s;
+}
+.recent-card:hover .recent-del { opacity: 1; }
+.recent-del:hover { background: var(--bad); }
+
+/* 转圈：和播放三角一样大的半透明黑底圆（亮的海报上也看得清），里面一道白弧在转；不想看动画的系统设置下转慢一点 */
+.sample-spin {
+  position: absolute; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, 0.55);
+}
+.sample-spin::before {
+  content: ''; width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, 0.3); border-top-color: #fff;
+  animation: sample-spin .8s linear infinite;
+}
+@keyframes sample-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .sample-spin::before { animation-duration: 2.4s; } }
+.recent-card.is-sample {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .15s, transform .15s;
+}
+.recent-card.is-sample:hover { border-color: var(--accent); transform: translateY(-2px); }
+.recent-card.is-sample .recent-open { border: 0; border-radius: 0; background: none; transition: none; }
+.recent-card.is-sample .recent-open:hover { transform: none; }
+.recent-card.is-sample .recent-meta { padding-bottom: 9px; }
+.recent-card.is-loading .recent-del { opacity: 1; }
+.recent-card.is-loading .recent-open { cursor: progress; }
+.recent-card.is-sample.is-loading:hover { transform: none; }
+
+/* ---- 翻译：字幕列表和画面字幕 ---- */
+.line .text { display: flex; flex-direction: column; gap: 2px; }
+.line .en { white-space: pre-line; font-size: 15px; line-height: 22px; }
+.line .zh { color: #a9a2c8; font-size: 13px; line-height: 20px; white-space: pre-line; }
+.line .zh.pending { color: var(--muted); opacity: 0.5; }
+.line .note { display: block; color: var(--muted); font-size: 12px; line-height: 18px; margin-top: 1px; }
+.line .note::before { content: '注 '; color: var(--accent-text); opacity: 0.8; }
+/* 注释前面那个小标跟着界面语言：繁體写「註」、English 写 Note（注释本身是 AI 写的简体中文，照旧） */
+html:lang(zh-TW) .line .note::before { content: '註 '; }
+html:lang(en) .line .note::before { content: 'Note: '; }
+/* 另外 9 种界面语言：没写的话这几种会照最上面那条出简体的「注」 */
+html:lang(de) .line .note::before { content: 'Hinweis: '; }
+html:lang(fr) .line .note::before { content: 'Note : '; }
+html:lang(ja) .line .note::before { content: '注 '; }
+html:lang(ko) .line .note::before { content: '주: '; }
+html:lang(tr) .line .note::before { content: 'Not: '; }
+html:lang(ru) .line .note::before { content: 'Прим.: '; }
+html:lang(es) .line .note::before { content: 'Nota: '; }
+html:lang(pt) .line .note::before { content: 'Nota: '; }
+html:lang(ar) .line .note::before { content: 'ملاحظة: '; }
+html:lang(hi) .line .note::before { content: 'नोट: '; }
+html:lang(vi) .line .note::before { content: 'Ghi chú: '; }
+.line.current .zh { color: #d9cff5; }
+
+.seg { margin-left: auto; display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; font-weight: normal; }
+.seg button { background: none; border: 0; padding: 3px 10px; cursor: pointer; font-size: 12px; color: var(--muted); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--accent-soft); color: var(--accent-text); }
+/* 回到当前句：自己滚走了列表才出，浮在列表右下角的圆钮（准星图标），不占一行 */
+.lines-back {
+  position: absolute; right: 12px; bottom: 12px; z-index: 3; width: 38px; height: 38px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; border: 1px solid #4c466a; background: rgba(38, 33, 61, 0.94); color: var(--accent-text);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); cursor: pointer;
+}
+.lines-back:hover { background: #342e4e; }
+
+@keyframes login-region-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+
+/* 验证码框：大一号、等宽、字距拉开，6 位一眼数得清；占位字照常大小 */
+/* 占位字：浏览器默认的灰压在输入框深底上只有 4.1:1，不到正文的 4.5:1；换成次要字的颜色（6.6:1），
+   Firefox 默认还给占位字打半透明，一并去掉 */
+.settings input::placeholder { color: var(--muted); opacity: 1; }
+
+.cb-check button { text-align: left; white-space: nowrap; }
+
+/* 出错的提示文字 */
+.bad { color: #ffb3b3; }
+
+/* ======================================================================
+   控制区（今日那一行、精听｜排序）、答题区、学习设置
+   状态色语义：绿只给做完
+   ====================================================================== */
+:root {
+  --ok: #54c47a;           
+  --ok-soft: rgba(84, 196, 122, 0.14);
+  --ok-text: #7ee787;      
+  /* 任务按钮四种状态（S:1590-1609） */
+  --wait-bg: #34383a; --wait-fg: #9da4a8;
+  --go-bg: #dfe3e5; --go-fg: #141516;
+  --doing-bg: #e8b96a; --doing-fg: #1d1405;
+  --done-bg: #54c47a; --done-fg: #0f1a13;
+  /* 词块：15–15.5px / 行高 38px；窄屏给大一档 */
+  --tok-fs: 16.5px;
+  --tok-line: 40px;
+}
+
+.right { flex-direction: column; gap: 10px; }
+
+/* ---- 答题区（S:447-925、1066-1094、1164-1186、1431-1465、1613-1658、1846-1881） ---- */
+.sort-panel {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; user-select: none;
+}
+.sort-head {
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sort-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.sort-title strong { font-size: 12px; font-weight: 400; letter-spacing: 2px; color: var(--muted); white-space: nowrap; }
+.sort-title strong::before {
+  content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%;
+  background: var(--ok); box-shadow: 0 0 8px rgba(84, 196, 122, 0.8); vertical-align: 1px;
+}
+.sort-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.sort-tool {
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.13); border-radius: 999px;
+  color: var(--text); font-size: 12px; padding: 4px 12px; cursor: pointer; white-space: nowrap;
+  transition: border-color 130ms ease, background 130ms ease, color 130ms ease;
+}
+.sort-tool:hover { background: rgba(84, 196, 122, 0.10); border-color: rgba(84, 196, 122, 0.5); }
+.sort-tool.is-active { background: rgba(84, 196, 122, 0.16); border-color: rgba(84, 196, 122, 0.65); color: #bfe9cf; }
+.sort-tool[aria-disabled="true"], .sort-tool:disabled {
+  opacity: 0.4; background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.13); cursor: not-allowed;
+}
+/* 倒计时那 10 秒字要看得清（S:1455-1458） */
+.sort-tool.is-waiting[aria-disabled="true"] { opacity: 0.68; }
+.sort-body { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 14px 12px; }
+.sort-collapsed-tip { margin: 4px 0 8px; color: var(--muted); font-size: 13px; }
+
+/* 答案区：柔和内凹的虚线面板；词「写在横线上」，跟着句子排版走（S:786-842） */
+.sort-answer {
+  background: rgba(255, 255, 255, 0.03); border: 1.5px dashed rgba(255, 255, 255, 0.14); border-radius: 14px;
+  padding: 12px 14px; min-height: 72px; transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+}
+.sort-answer:hover { border-color: rgba(255, 255, 255, 0.24); }
+/* 多人对白不按人换行（否则下面的单词都没位置了」「电脑版也一样」）：
+   模板里的 \n 还在（shared/sortText.js，计分、句子解析照旧用），white-space: normal 把它当成一个空格，词连成一段往下排 */
+.sort-template {
+  line-height: var(--tok-line); font-size: var(--tok-fs); letter-spacing: 0.2px; color: #e8edef;
+  white-space: normal; overflow-wrap: anywhere;
+}
+.sort-placeholder { color: #777f82; font-size: 12px; letter-spacing: 0; }
+.sort-tok {
+  display: inline-flex; align-items: center; vertical-align: baseline; font: inherit; font-size: var(--tok-fs); line-height: 1.25;
+  user-select: none; touch-action: none; cursor: grab; color: var(--text);
+}
+.sort-template .sort-tok {
+  margin: 2px 1px; padding: 6px 9px 5px; color: #f2f6f7; background: rgba(255, 255, 255, 0.055);
+  border: 1px solid transparent; border-bottom: 2px solid var(--pv-line, rgba(84, 196, 122, 0.55)); border-radius: 7px 7px 3px 3px;
+}
+.sort-template .sort-tok:hover, .sort-template .sort-tok:focus-visible {
+  background: var(--pv-hover-bg, rgba(84, 196, 122, 0.14)); border-bottom-color: var(--pv-hover-line, var(--ok)); outline: 0;
+}
+/* 空词位：等宽（看不出词多长，S:825-835），占位字透明 */
+.sort-slot {
+  display: inline-block; min-width: 62px; margin: 0 2px; padding: 6px 9px 5px; line-height: 1.25; color: transparent; text-align: center;
+  background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.16); border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 7px 7px 3px 3px; vertical-align: baseline; cursor: pointer; transition: background 150ms ease, border-color 150ms ease;
+}
+.sort-slot:hover {
+  background: var(--pv-slot-bg, rgba(84, 196, 122, 0.12)); border-color: var(--pv-slot-line, rgba(84, 196, 122, 0.5));
+  border-bottom-color: var(--pv-hover-line, var(--ok));
+}
+/* 长句压紧一档（20 词以上，SortPanel LONG_PUZZLE_WORDS）：右栏窄，一排才放得下四五个空位，40 词的句子答案区十来行，
+   词块区被挤到面板可视范围以下。字、行高、内边距都小一点；空位一律同样宽（照样看不出词多长），宽度不再由透明的占位字撑，
+   占位字用负字距缩进格子里（不溢出，用不着裁）。【别用 overflow: clip / hidden 裁】：iPhone 的浏览器内核（WebKit，iPhone 上的 Chrome 也是它）
+   见到 overflow 不是 visible 的行内块，就拿它的底边当基线——空格子整个抬高一截，词块看着「下沉」；
+   谷歌浏览器对 clip 不这样算，电脑上一直看不出来 */
+.sort-panel.is-long { --tok-fs: 15.5px; --tok-line: 34px; }
+.sort-panel.is-long .sort-answer { padding: 8px 10px; }
+.sort-panel.is-long .sort-template .sort-tok { padding: 4px 6px 3px; }
+.sort-panel.is-long .sort-slot { width: 46px; min-width: 0; padding: 4px 0 3px; white-space: nowrap; letter-spacing: -0.3em; }
+.sort-panel.is-long .sort-bank { gap: 6px; padding: 10px; }
+.sort-panel.is-long .sort-bank .sort-tok { padding: 5px 11px; }
+/* 拖动中：将要落入的空位（实线框）/ 落到已有的词上 = 交换（底色）；窄屏版绿，电脑版浮动答题区紫（--pv-*，下面「A 浮动卡片」段） */
+.sort-slot.is-drop-target {
+  color: transparent; background: var(--pv-drop-bg, rgba(84, 196, 122, 0.22)); border-color: var(--pv-drop-line, var(--ok));
+  border-bottom-color: var(--pv-drop-line, var(--ok)); border-style: solid; box-shadow: 0 0 0 2px var(--pv-drop-ring, rgba(84, 196, 122, 0.25));
+}
+.sort-template .sort-tok.is-drop-target {
+  background: var(--pv-drop-tok, rgba(84, 196, 122, 0.26)); border-color: var(--pv-drop-line, var(--ok));
+  border-bottom-color: var(--pv-drop-line, var(--ok)); box-shadow: 0 0 0 2px var(--pv-drop-ring, rgba(84, 196, 122, 0.25));
+}
+/* 拖起来的那一个：原位半透明虚线（S:1091-1094） */
+.sort-tok.is-dragging { opacity: 0.4; border-style: dashed !important; }
+/* 跟着手走的拖影 */
+.sort-ghost {
+  position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; padding: 7px 15px; border-radius: 999px;
+  font-size: var(--tok-fs); color: #f3f5f8; white-space: nowrap; background: linear-gradient(180deg, #3a4043 0%, #2b3032 100%);
+  border: 1px solid var(--ok); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55); font-family: inherit;
+}
+/* 词块区：可以拿起来的药丸芯片（S:844-872）。词块套在一层轨道里（TokenBank.jsx）：平时轨道不占位（contents），
+   词块照旧是 .sort-bank 这个折行容器的孩子；只有窄屏版放不下、改成左右划时轨道才撑开（下面 .is-hscroll） */
+.sort-bank-track { display: contents; }
+.sort-bank {
+  display: flex; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: 8px; min-height: 56px; padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px;
+}
+.sort-bank .sort-tok {
+  padding: 7px 15px; background: var(--pv-chip, linear-gradient(180deg, #33383b 0%, #262a2c 100%)); border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.30), 0 3px 8px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  transition: transform 130ms ease, box-shadow 130ms ease, border-color 130ms ease, background 130ms ease;
+}
+.sort-bank .sort-tok:hover, .sort-bank .sort-tok:focus-visible {
+  transform: translateY(-2px); background: var(--pv-chip-hi, linear-gradient(180deg, #3a4043 0%, #2b3032 100%));
+  border-color: var(--pv-chip-hover-line, rgba(84, 196, 122, 0.60)); outline: 0;
+}
+.sort-bank .sort-tok:active { transform: translateY(0) scale(0.97); cursor: grabbing; }
+/* 预摆的词：压暗、斜纹、虚下划线、不给抓手，悬停不变（S:1846-1875） */
+.sort-tok.is-preset, .sort-tok.is-preset:hover, .sort-template .sort-tok.is-preset, .sort-template .sort-tok.is-preset:hover {
+  color: #98a2a5; background-color: rgba(255, 255, 255, 0.022);
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0, rgba(255, 255, 255, 0.06) 2px, transparent 2px, transparent 6px);
+  border-color: transparent; border-bottom: 2px dotted rgba(255, 255, 255, 0.24); box-shadow: none; transform: none; cursor: default;
+}
+/* 排对：绿色只给整句大框（S:874-892、1431-1450） */
+.sort-answer.is-correct { background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.10); }
+.sort-solved {
+  display: inline-block; width: fit-content; max-width: 100%; padding: 8px 12px; border-radius: 12px;
+  border: 1px solid rgba(84, 196, 122, 0.42); background: rgba(84, 196, 122, 0.10); cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.sort-solved:hover { background: rgba(84, 196, 122, 0.17); border-color: rgba(84, 196, 122, 0.75); }
+.sort-solved .sort-tok, .sort-solved .sort-tok:hover, .sort-solved .sort-tok.is-preset {
+  color: #eef3f4; background: rgba(255, 255, 255, 0.055); background-image: none; border-color: transparent;
+  border-bottom: 1px solid transparent; border-radius: 6px; cursor: pointer;
+}
+/* 提示 2 秒：琥珀色；这 2 秒里不让点（S:895-920）。电脑版浮动答题区另有标题栏下面一条倒计时线、词块压暗（下面「A 浮动卡片」段） */
+.sort-panel.is-hinting .sort-answer {
+  background: rgba(240, 195, 90, 0.07); border-style: solid; border-color: rgba(240, 195, 90, 0.55); box-shadow: 0 0 0 3px rgba(240, 195, 90, 0.10);
+}
+.sort-panel.is-hinting .sort-template .sort-tok { color: #f8ecd0; background: rgba(240, 195, 90, 0.16); border-bottom-color: rgba(240, 195, 90, 0.85); }
+.sort-panel.is-hinting .sort-template, .sort-panel.is-hinting .sort-bank { pointer-events: none; }
+/* 桌面版练习循环关着（SortPanel / DictPanel 的 locked，不可以答题」「但是可以显示答题区」）：题照摆、整块压暗；
+   不用 pointer-events: none——点了要 toast「开循环才能答题」。底栏母语和「翻译」开关不压（底栏是字幕，不算答题） */
+.sort-panel.is-locked .sort-answer, .sort-panel.is-locked .sort-bank { opacity: 0.45; }
+.sort-panel.is-locked .sort-answer, .sort-panel.is-locked .sort-answer *, .sort-panel.is-locked .sort-bank * { cursor: not-allowed; }
+.sort-note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+
+/* 母语译文：html 的 data-tr 是她的母语（App 设，画中画小窗照抄）。画面字幕、注释、整片字幕、答题区、跟读页的译文，
+   每日小测的选意选项、判定卡、小结、生词本列表、词卡上的母语释义按它挑字体——
+   上面 .sort-zh 写死的是简体字体，别的语言换掉；阿拉伯语这几块从右往左排（界面是别的语言、版面从左往右时也一样；
+   界面是阿拉伯语、母语却从左往右写的反过来，见文件最后一节）。「正在获取翻译…」那句是界面语言写的，不跟着换 */
+:root[data-tr="zh-TW"] :is(.overlay-sub .zh, .overlay-note span, .line .zh, .line .note, .sort-zh, .sp-zh > span, .vc-opt.is-mean, .vc-word-zh, td.zh, .nb-zh, .wc-line, .wc-dict, .wc-det ol) {
+  font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+}
+:root[data-tr="ja"] :is(.overlay-sub .zh, .overlay-note span, .line .zh, .line .note, .sort-zh, .sp-zh > span, .vc-opt.is-mean, .vc-word-zh, td.zh, .nb-zh, .wc-line, .wc-dict, .wc-det ol) {
+  font-family: "Yu Gothic UI", "Meiryo", "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+}
+:root[data-tr="ko"] :is(.overlay-sub .zh, .overlay-note span, .line .zh, .line .note, .sort-zh, .sp-zh > span, .vc-opt.is-mean, .vc-word-zh, td.zh, .nb-zh, .wc-line, .wc-dict, .wc-det ol) {
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR", sans-serif;
+}
+:root[data-tr="hi"] :is(.overlay-sub .zh, .overlay-note span, .line .zh, .line .note, .sort-zh, .sp-zh > span, .vc-opt.is-mean, .vc-word-zh, td.zh, .nb-zh, .wc-line, .wc-dict, .wc-det ol) {
+  font-family: "Nirmala UI", "Kohinoor Devanagari", "Devanagari Sangam MN", sans-serif;
+}
+
+@keyframes ll-an-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes ll-an-in-rtl { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+
+/* 字幕打码（控制区「字幕打码」点亮的那种语言）：原字照样排版、糊成一团雾，
+   宽度、行数、位置跟原字一样，开关时版面不跳。不能偷看：选不中、不接鼠标（点击落到下面那一行，列表点一句照样跳过去；查词也取不到）。
+   雾：糊 0.24 个字（按 em，跟着字号走，
+   字幕列表、画面字幕、答题区、窗口、全屏同一个样子，不再按地方挑格子）；字幕列表当前那句和画面字幕慢慢「呼吸」（6 秒浓淡一回）。
+   鼠标划过那一行，雾被吹开、几秒后合回来（components/subFog.js）；练习时手上这道题（能点开偷看的 .mask-text、字幕列表里点不开的 .fog-lock）只换样子、吹不开 */
+.sub-mosaic { filter: blur(.24em); user-select: none; -webkit-user-select: none; pointer-events: none; }
+/* 套在行内 span 上的（答题区底栏母语、画面字幕）：行内框上滤镜按行切开，换成行内块才是一整块打码 */
+:where(.sub-mosaic) { display: inline-block; }
+/* 答题区译文行隐形占位（display.js zhLine 的 ghost）：
+   这句译文照样排（和打码一样是行内块，宽高、几行都和看得见时一样），只是看不见、选不中、不接鼠标 */
+/* 吹得开的那几块（字幕列表的行、画面字幕）往外扩 0.8 个字、外边距扣回去，版面不动：吹开时要给它套遮罩，遮罩只盖到元素的框，
+   糊开的雾边不扩出去就被切成方块 */
+:is(.line, .overlay-sub) .sub-mosaic:not(.mask-text, .fog-lock) { padding: .8em; margin: -.8em; }
+:is(.line.current, .overlay-sub) .sub-mosaic:not(.mask-text, .fog-lock) { animation: fogbreath 6s ease-in-out infinite; }
+@keyframes fogbreath { 50% { filter: blur(.3em); } }
+@media (prefers-reduced-motion: reduce) { .sub-mosaic { animation: none !important; } }
+/* 触屏横着滑是吹雾，竖着滑照样滚列表 */
+.lines .line, .overlay-sub { touch-action: pan-y; }
+/* 吹开时叠在打码那块上的清楚克隆（subFog.js 插在它后面、量好位置，遮罩「只露风团」） */
+.fog-clr { position: absolute; margin: 0 !important; box-sizing: border-box; pointer-events: none; filter: none !important; animation: none !important;
+  -webkit-mask-image: linear-gradient(transparent, transparent); mask-image: linear-gradient(transparent, transparent); }
+/* 手上这一题的打码（MaskText）：
+   和上面的雾同一个样子（底下排的就是这句真字，打出来和观影时一样长）；只是能点——手形、悬停说明，点开 = 偷看。冷却里点不开：箭头。
+   画面字幕本来不接鼠标（.overlay-sub），这一句要接 */
+.sub-mosaic.mask-text { pointer-events: auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.sub-mosaic.mask-text.is-wait { cursor: default; }
+.mask-text:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+/* 先亮后收（下一题的译文）：字先亮 0.8 秒，再淡成雾（0.55 秒）。
+   淡完 App 把 fold 去掉（FOLD_MS），只剩打码那层。系统设了「减少动画」：不淡，字亮着到点直接换成雾。
+   画面上 .overlay-sub span 会把它设成 inline-block，要压回 inline-grid（两层叠在一格里） */
+.mask-fold, .overlay-sub .mask-fold { display: inline-grid; place-items: center; max-inline-size: 100%; }
+.mask-fold > * { grid-area: 1 / 1; }
+.mask-fold-text { animation: mask-fold-text 1.35s ease forwards; }
+.mask-fold > .mask-text { animation: mask-fold-in 1.35s ease forwards; }
+@keyframes mask-fold-text { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mask-fold-in { 0%, 60% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .mask-fold-text { animation: mask-fold-text-rm 1.35s steps(1, end) forwards; }
+  .mask-fold > .mask-text { animation: mask-fold-in-rm 1.35s steps(1, end) forwards; }
+}
+@keyframes mask-fold-text-rm { 0%, 66% { opacity: 1; } 67%, 100% { opacity: 0; } }
+@keyframes mask-fold-in-rm { 0%, 66% { opacity: 0; } 67%, 100% { opacity: 1; } }
+
+/* ---- 学习设置（右侧抽屉） ---- */
+.settings {
+  width: min(460px, 100%); height: 100%; display: flex; flex-direction: column; background: var(--panel);
+  border-left: 1px solid var(--line); box-shadow: -12px 0 36px rgba(0, 0, 0, 0.45);
+}
+/* 「语言」一节的三个下拉框（界面语言、母语、目标语言）一样宽，不跟着选中的那一项的名字长短变 */
+/* 输入框字号不小于 16px：iOS 上小于 16px 聚焦会把整页放大（06 §4.6 第 24 条） */
+.settings input, .settings select {
+  font-size: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px;
+}
+.settings input:focus, .settings select:focus { outline: none; border-color: var(--accent); }
+.settings input.num { width: 84px; }
+.settings input:disabled { opacity: 0.5; }
+   /* 和界面语言那个一样宽；放不下时最宽一整行 */
+/* 在学的语言（多学习语言方案第 1 步，SettingsPanel.jsx LearnLangsRow）：一门一个签，当前那门描主色；签多了折行、靠行尾；
+   签上的 × 去掉那门；最后的「＋」下拉框不跟上面 240 宽，只按「＋」撑 */
+/* 学习设置最底下「删除数据」（DeleteAccount.jsx）：入口按钮红字红框，展开后一块淡红底；「永久删除」实心红底白字
+   （#c62828 上白字 5.6:1）。灰着照旧 .btn:disabled 的半透明 */
+.btn.is-danger { color: var(--bad); border-color: rgba(255, 107, 107, 0.55); }
+.btn.is-danger:hover { background: var(--bad-soft); border-color: var(--bad); }
+.btn.is-danger-fill { background: #c62828; border-color: #c62828; color: #fff; }
+.btn.is-danger-fill:hover { background: #b71c1c; border-color: #b71c1c; }
+.btn.is-danger-fill:disabled:hover { background: #c62828; border-color: #c62828; }
+/* 发码 / 填码那一排（按钮、验证码框、重新获取、取消）：放不下就折行 */
+/* 拨动开关（还有那个什么锁也是」；Switch.jsx）：学习设置里开 / 关的项一律是它。
+   轨道 44×26、圆钮 22：关着灰、钮在开头；开着主色、钮在尾头（计分绿是状态色）。
+   阿拉伯语界面镜像：开着钮在左边。disabled 的灰着、拖不动。拖的时候钮跟着手指走（--sw-drag，不带过渡）。
+   「开 / 关」两个字只给读屏（.sw-state）。手机上整颗至少 44px 高（手指好按） */
+.sw {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; min-inline-size: 48px; min-block-size: 32px; padding: 0;
+  border: 0; background: none; cursor: pointer; touch-action: pan-y; -webkit-tap-highlight-color: transparent;
+}
+
+.sw:focus-visible { outline: none; }
+.sw:disabled { cursor: not-allowed; }
+@media (pointer: coarse) { .sw { min-inline-size: 56px; min-block-size: 44px; } }
+
+.grow { flex: 1; }
+
+/* 跟读、每日小测的数字框：前面小标签、后面单位；一行最多两个 */
+.settings input.num.sm { width: 64px; }
+
+/* ---- 短提示 ---- */
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 70; max-width: min(560px, calc(100vw - 32px));
+  padding: 9px 16px; border-radius: 9px; background: #2d2846; border: 1px solid #4c466a; color: #f3f2fb; font-size: 13.5px;
+  text-align: center; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45); pointer-events: none;
+}
+
+/* ================= 浮动布局（docs/历史/layout/浮动模式-实现说明.md §3.7） =================
+   浮层都放在播放器舞台 .stage 里、absolute 定位（坐标按舞台算，进出全屏不用搬）。舞台不是层叠上下文，舞台里一律压在 10 以下：
+   画面字幕 2 < 字幕抽屉 2（DOM 在后）< 控制条 3 < 答题区 4 < 控制区 5 < 弹出菜单开着的控制条 6 < 全屏时的提示条 7 */
+.workspace.is-float { display: flex; padding: 0; gap: 0; }
+.workspace.is-float .left { flex: 1; min-width: 0; overflow: hidden; gap: 0; }
+.workspace.is-float .player { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.workspace.is-float .stage { flex: 1 1 0; min-height: 0; border-radius: 0; }
+.workspace.is-float .stage video { width: 100%; height: 100%; max-height: none; min-height: 0; object-fit: contain; }
+/* 画中画时的占位占满视频区（实现说明 §2.10）：盖掉基础规则的 16:9、max-height（100vh − 290）和圆角，不然只有 430 高、底下露一截 */
+.workspace.is-float .pip-placeholder { height: 100%; max-height: none; aspect-ratio: auto; border-radius: 0; }
+/* 鼠标在进度条那一条上、或者离进度条 60px 以内（Player 在舞台上标 data-near-bar），拖着进度条也算：这一条压过排序时挂在答题区下面的
+   那行英文（.overlay-sub.under-prac 也是 z 4，DOM 在前，同层后来的在上），字幕退到进度条下层（鼠标移动到进度条时，字幕不挡住进度条）。:where 把舞台那截的优先级去掉，
+   开着菜单、调音量时下面那条 z 6 照旧盖得过 */
+.cbar:hover, .cbar:has(.cb-progress.dragging), :where(.stage[data-near-bar]) .cbar { z-index: 4; }
+/* 鼠标正停在画面上打码的那句上（Player 标 data-on-mask）：控制条哪怕被悬停也退到 3，打码那句（z 4）在上，点下去是「提示」不是拖进度条
+   和 .cbar:hover 同一优先级、写在后面；拖着进度条、开着菜单那几条优先级更高，照旧盖得过 */
+:where(.stage[data-on-mask]) .cbar:hover { z-index: 3; }
+/* 观影时画面字幕是 z 2，比控制条（平时 3）低：鼠标停在遮盖的那行上，这行提到 4，雾吹开看得见、不被进度条那一截盖住。
+   练习时挂在答题区下面那行本来就是 4，不受影响 */
+:where(.stage[data-on-mask]) .overlay-sub { z-index: 4; }
+.cbar:has(.cb-menu), .cbar:has(.cb-volume:hover), .cbar:has(.cb-volume.dragging) { z-index: 6; }
+
+/* ---- 答题区外框（整体固定 0.7 透明） ----
+   改宽：左右两边各一条 8px 看不见的拖动边（.fp-edge），鼠标移上去变双箭头、出一道细线，按住拖 */
+/* 答题区离舞台底多高（--prac-bottom）：至少让开控制区（约 84px），还要放得下下面两行原文（.overlay-sub.under-prac：行高 1.35、
+   上留 6px 下留 2px）——字号跟着视频框放大以后（--sub-fs），84px 只够 27px 的字排两行，再大就压到答题区上（字号最大约 51px：38 × 1.35 档，算出来约 148px） */
+.stage { --prac-bottom: max(84px, calc(var(--sub-fs) * 2.7 + 10px)); }
+.float-prac {
+  position: absolute; z-index: 4; bottom: var(--prac-bottom); display: flex; flex-direction: column; overflow: hidden;
+  min-width: min(500px, calc(100% - 16px)); max-width: calc(100% - 16px); max-height: calc(100% - var(--prac-bottom) - 8px);
+  background: linear-gradient(180deg, rgba(24, 26, 28, 0.94), rgba(16, 17, 19, 0.96));
+  backdrop-filter: blur(14px) saturate(1.15); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 2px 0 rgba(255, 255, 255, 0.03) inset;
+  opacity: 0.7; transition: none; cursor: default;
+}
+.float-prac .sort-panel { flex: 0 1 auto; min-height: 0; background: none; border: 0; border-radius: 0; --tok-fs: 15px; --tok-line: 38px; }
+.float-prac .sort-head { cursor: grab; touch-action: none; }
+.float-prac.is-dragging .sort-head { cursor: grabbing; }
+.float-prac .sort-head, .float-prac .sort-body { transition: opacity 260ms ease; }
+/* 闲置：只剩一行中文、不接鼠标；只透明不塌缩（M:2540-2543） */
+.float-prac.is-idle {
+  background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none;
+  opacity: 1; pointer-events: none;
+  transition: background 300ms ease, border-color 300ms ease, box-shadow 300ms ease, opacity 260ms ease;
+}
+.float-prac.is-idle .sort-head, .float-prac.is-idle .sort-body { opacity: 0; pointer-events: none; }
+.float-prac.is-idle .sort-head { border-bottom-color: transparent; }
+/* 答题区的中文放在固定底栏：长句时只滚中间（两种布局都用） */
+
+/* ---- 听写答题区（components/dict/DictPanel.jsx）：外框、头部、底栏全复用 .sort-*，下面只写听写自己的 ---- */
+.dict-body { display: flex; flex-direction: column; gap: 8px; }
+/* 答案框（照句乐部）：和排序同一个虚线框（.sort-answer），框里先按词长画好一词一格的下划线（.dict-cell，--n = 这个词几个字）；
+   打的字写在当前格里，回车一起判：对的变灰、锁住，错的变红，空着没打的红虚线；错的格子重打过变蓝（再判之前还算错的）。
+   全对 / 看了答案换成整句（.dict-w）。
+   真正接键盘的是框里看不见的 .dict-input */
+.dict-answer { position: relative; cursor: text; min-height: 64px; padding: 10px 14px; }
+.dict-answer:focus-within { border-color: var(--pv-focus, rgba(84, 196, 122, 0.45)); }
+.dict-answer.is-correct { cursor: auto; }
+/* 「提示一下」那 2 秒：框里亮原句（琥珀），和排序同色；画面字幕照旧打码 */
+.dict-answer.is-peek {
+  background: rgba(240, 195, 90, 0.07); border-style: solid; border-color: rgba(240, 195, 90, 0.55); box-shadow: 0 0 0 3px rgba(240, 195, 90, 0.10);
+}
+.dict-typed {
+  font-size: var(--tok-fs); line-height: 1.75; letter-spacing: 0.2px; color: #f2f6f7; min-height: 30px; word-break: break-word; user-select: none;
+}
+.dict-answer.is-correct .dict-typed { user-select: text; }
+.dict-w {
+  display: inline-block; position: relative; margin: 0 0 4px; margin-inline-end: 5px; padding: 1px 4px 0; border-radius: 5px 5px 2px 2px;
+  border-bottom: 2px solid transparent; vertical-align: bottom; white-space: pre; font-variant-ligatures: none;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+.dict-w.is-ok { border-bottom-color: rgba(84, 196, 122, 0.8); background: rgba(84, 196, 122, 0.10); }
+/* 看了答案：整句琥珀色 */
+.dict-w.is-shown { color: #f8ecd0; border-bottom-color: rgba(240, 195, 90, 0.55); }
+/* 一词一格：格宽按词长（1ch 一个字），打长了格子跟着变宽 */
+.dict-cell {
+  display: inline-block; position: relative; min-width: calc(var(--n, 3) * 1ch + 8px); min-height: 1.5em; margin: 0 0 6px; margin-inline-end: 8px; padding: 1px 4px 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.28); vertical-align: bottom; white-space: pre; font-variant-ligatures: none; text-align: center;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+.dict-cell.is-cur { border-bottom-color: rgba(255, 255, 255, 0.8); }
+/* 判过：对的变灰、锁住（光标跳过它） */
+.dict-cell.is-ok { color: var(--muted); border-bottom-color: rgba(255, 255, 255, 0.12); cursor: default; }
+/* 预填的词（学习计划调整第 4 项）：和排序预摆的词同一个样子——压暗、虚下划线、不给光标，一眼看出不是自己打的 */
+.dict-cell.is-preset { color: #98a2a5; border-bottom: 2px dotted rgba(255, 255, 255, 0.24); background: rgba(255, 255, 255, 0.022); border-radius: 4px 4px 0 0; cursor: default; }
+/* 错的变红 */
+.dict-cell.is-bad { color: #ff9a9a; border-bottom-color: rgba(255, 107, 107, 0.85); background: rgba(255, 107, 107, 0.08); border-radius: 4px 4px 0 0; }
+/* 空着没打：红虚线 */
+.dict-cell.is-miss { border-bottom-style: dashed; }
+/* 判错以后重打过、还没再判：蓝（照句乐部的 fixed） */
+.dict-cell.is-fixed { color: #a8cfff; border-bottom-color: rgba(110, 170, 255, 0.85); background: rgba(110, 170, 255, 0.08); border-radius: 4px 4px 0 0; }
+.dict-sel { background: var(--pv-sel, rgba(84, 196, 122, 0.35)); border-radius: 2px; }
+/* 西语少打重音符号：判对、锁住，但这一格标黄并显示正确拼法 */
+.dict-cell.is-accent { color: #f3d98a; border-bottom-color: rgba(240, 195, 90, 0.85); background: rgba(240, 195, 90, 0.10); border-radius: 4px 4px 0 0; }
+.dict-w.is-accent { color: #f3d98a; border-bottom-color: rgba(240, 195, 90, 0.85); background: rgba(240, 195, 90, 0.10); }
+/* 西语字符钮：答案框上方一行 á é í ó ú ü ñ，点一下在光标处插字（钮不抢答案框的焦点） */
+.dict-chars { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
+.dict-char {
+  min-width: 28px; height: 26px; padding: 0 6px; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05); color: #e6ebed; font: inherit; font-size: 14px; line-height: 1; cursor: pointer;
+}
+.dict-char:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.34); }
+/* 屏幕字母键（俄、阿、印地）：按行排的小键盘，没装这门文字输入法的电脑也能答 */
+.dict-kbd { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; }
+.dict-kbd-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.dict-key { min-width: 26px; height: 28px; font-size: 15px; }
+/* 全对：框里换成原句，词和词之间是原句里的空格、标点，不再另留间距 */
+.dict-answer.is-correct .dict-w { margin-inline-end: 0; }
+.dict-lit { color: #cfd6d9; }
+.dict-caret {
+  display: inline-block; width: 2px; height: 1.1em; margin-inline-start: 1px; vertical-align: -0.15em; background: var(--pv-caret, var(--ok, #54c47a));
+  animation: dict-caret-blink 1s steps(1) infinite;
+}
+@keyframes dict-caret-blink { 50% { opacity: 0; } }
+.dict-input {
+  position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; border: 0; margin: 0;
+  opacity: 0; pointer-events: none; font: inherit; font-size: 16px; caret-color: transparent;
+}
+.dict-note { margin: 0; }
+.dict-note.is-warn { color: #ffd28a; }
+.sort-panel.is-collapsed .dict-body { padding-bottom: 8px; }
+/* 排序时的英文整句：挂在答题区下面 6px（C:206、1982-1994），放不下时底边贴住舞台底 2px 往上长；描边无底块 */
+.overlay-sub.under-prac { top: calc(100% - var(--prac-bottom) + 6px); bottom: 2px; justify-content: flex-end; z-index: 4; }
+.overlay-sub.under-prac > span { margin-bottom: auto; }
+/* 打码的那句也一样顶在上面（「往外扩 0.8 个字」那条外边距会压过上一条）：底边不往外扩，放得下、放不下都和亮字时一样高，开关不跳 */
+.overlay-sub.under-prac > .sub-mosaic:not(.mask-text, .fog-lock) { padding-bottom: 0; margin-bottom: auto; }
+/* 浮动精听也照排序的位置（目标语言在下」）：
+   母语在上、底边对齐答题区里那行母语（答题区底边 --prac-bottom + 边框 1 + 底栏 8，字小时 ≈ 93px）；原文在下、和 under-prac 一样从答题区底下 6px 往下排，
+   放不下时底边贴住舞台底 2px 往上长，母语跟着往上推 */
+.overlay-sub.as-sort { bottom: 2px; z-index: 4; }
+.overlay-sub.as-sort > .sub-learn { min-height: calc(var(--prac-bottom) - 8px); display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 13px; }
+
+.stage.list-open .overlay-sub { left: min(380px, 42%); }
+/* 练习时开着列表（桌面版）：答题区摆在列表右边那块（FloatPractice.jsx area），最小、最大宽也按那块算，窄窗口里不伸出右边 */
+.stage.list-open .float-prac { min-width: min(500px, calc(100% - min(380px, 42%) - 16px)); max-width: calc(100% - min(380px, 42%) - 16px); }
+/* 侧边栏（列表头上那颗钮）：画面让到右边，列表不盖画面；画面上的字幕、控制条、顶栏都跟着画面走。
+   列表成了实心的一栏，不要毛玻璃、阴影和滑进滑出；底下不再压着控制条，「回到当前句」放回列表右下角。
+   嵌入的在线画面不在舞台里，靠页面级样式让位（站点适配器的 listSideCss，宽度同这里） */
+.lines-head .lines-icon { padding: 2px 6px; line-height: 0; }
+/* 字幕搜索（useLineSearch）：放大镜靠右，后面那颗「浮动层 / 侧边栏」紧挨着它；开了搜索整个标题行换成搜索框这一排 */
+.lines-head .lines-search ~ .btn, .lines-head .search-row .btn { margin-left: 0; margin-right: 0; }
+:root[dir="rtl"] .lines-head .lines-search ~ .btn, :root[dir="rtl"] .lines-head .search-row .btn { margin-left: 0; margin-right: 0; }
+.search-row { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.search-box {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 3px 8px;
+  background: #0e0c18; border: 1px solid var(--accent); border-radius: 8px; cursor: text;
+}
+.search-box svg { flex: none; color: var(--muted); }
+.search-box input { flex: 1; min-width: 0; padding: 1px 0; background: none; border: 0; outline: 0; color: var(--text); font: inherit; font-weight: 400; }
+.search-count { flex: none; min-width: 34px; font-size: 12px; color: var(--muted); text-align: end; font-variant-numeric: tabular-nums; }
+.search-count.none { color: #ffb3b3; }
+/* 命中的行描一圈淡黄边（行没有边框了，用往里收的 outline，版面不动），当前那处所在的行深一点；命中的字本身靠 ::highlight 上色（不动 DOM） */
+.line[data-hit]:not(.current):not(.looping) { outline: 1px solid rgba(255, 214, 92, 0.35); outline-offset: -1px; }
+.line[data-hit-now] { outline: 1px solid rgba(255, 214, 92, 0.8); outline-offset: -1px; }
+::highlight(earu-hit) { background-color: rgba(255, 214, 92, 0.3); }
+::highlight(earu-hit-now) { background-color: #ffd65c; color: #1a1405; }
+
+/* ---- 提示条：浮动模式挪到画面上部约 1/4 处；全屏时在舞台里（浮动模式-实现说明 §2.6） ---- */
+.toast.is-top { top: 30vh; bottom: auto; }
+.stage .toast { position: absolute; top: 22%; bottom: auto; z-index: 7; }
+
+/* ================= 第 2 步 结束 ================= */
+
+/* ==== 第二阶段第 3 步：查词卡、生词本、查词记录（这一路：查词卡 / 生词本，见 components/WordCard.jsx、NotebookView.jsx） ==== */
+/* 可查的词（WordText）：文字的样子不变，只在悬停时给一点底色；卡对着的那个词高亮 */
+.sort-tok.is-on { box-shadow: 0 0 0 2px rgba(232, 185, 106, 0.6); }
+/* 生词本页那种点词就查的地方：虚线下划线 + 手形（WC .fnwc-w） */
+/* 画面字幕、字幕列表不再能查词、正在念的词也不再变黄跳动（见 Player.jsx 开头）：那几条样式删了 */
+/* 触屏长按查词：别选字、别弹系统菜单 */
+@media (pointer: coarse) {
+  .sort-tok { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+}
+
+/* 发音：在等 AI 生成时图标一闪一闪；拿不到时变红（生词本的发音钮同样） */
+@keyframes say-busy { 50% { opacity: 0.3; } }
+
+/* 变形词那行：原形后面跟原形的读法 / 注音 / 音标（读法小一号，别抢卡头的词） */
+/* 读音分组：每个词条（词性）一段；多种读音时每组上面一条线、组头是读法 / 音标 / 发音 */
+:is(.wc-det, .wc-more, .wc-tr) > summary { cursor: pointer; font-size: 12px; color: var(--wc-accent); list-style: none; }
+:is(.wc-det, .wc-more, .wc-tr) > summary::-webkit-details-marker { display: none; }
+:is(.wc-det, .wc-more, .wc-tr) > summary:focus-visible { outline: 2px solid var(--wc-accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ==== 浮动答题区：浮动卡片 ====
+   和控制区同一套卡片底（紫调深灰、细边 #2d2846、圆角 14）。标题栏：发光圆点 + 题型 + 难度角标，右边药丸文字钮
+   （排序【提示一下】【重新打乱】、听写【提示一下】【清空重写】；做对后「+N 分」【句子解析】【继续播放 ›】主色）。
+   词块、空位、拖动、光标、选中换紫（上面基础规则读 --pv-*，默认是绿，窄屏版不变）；提示那 2 秒琥珀不变，绿只给做对。
+   只改颜色变量、不在这里重写状态规则：带 .stage 前缀的规则特异性高，直接覆盖会压过 is-hinting / is-preset / sort-solved */
+.stage .float-prac {
+  --pv-line: rgba(139, 92, 246, 0.8);
+  --pv-hover-bg: rgba(139, 92, 246, 0.14);
+  --pv-hover-line: #8b5cf6;
+  --pv-slot-bg: rgba(139, 92, 246, 0.12);
+  --pv-slot-line: rgba(139, 92, 246, 0.5);
+  --pv-drop-bg: rgba(139, 92, 246, 0.22);
+  --pv-drop-tok: rgba(139, 92, 246, 0.26);
+  --pv-drop-line: #8b5cf6;
+  --pv-drop-ring: rgba(139, 92, 246, 0.25);
+  --pv-chip: linear-gradient(180deg, #332d4f 0%, #26213d 100%);
+  --pv-chip-hi: linear-gradient(180deg, #3e385b 0%, #2d2846 100%);
+  --pv-chip-hover-line: rgba(139, 92, 246, 0.6);
+  --pv-focus: rgba(139, 92, 246, 0.45);
+  --pv-sel: rgba(139, 92, 246, 0.35);
+  --pv-caret: #a78bfa;
+}
+.stage .float-prac:not(.is-idle) { background: rgba(23, 20, 42, 0.95); border-color: #2d2846; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45); }
+.stage .float-prac:not(.is-idle) .sort-head { border-bottom-color: #2d2846; }
+.stage .float-prac .sort-title strong { font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #ece9f7; }
+.stage .float-prac .sort-title strong::before { background: #8b5cf6; box-shadow: 0 0 8px rgba(139, 92, 246, 0.85); }
+.stage .float-prac .sort-panel.is-solved .sort-title strong::before { background: var(--ok); box-shadow: 0 0 8px rgba(84, 196, 122, 0.8); }
+.stage .float-prac .sort-tool { background: #1f1b36; border-color: #3b3557; color: #ece9f7; }
+.stage .float-prac .sort-tool:hover { background: #282344; border-color: #534d72; }
+.stage .float-prac .sort-tool[aria-disabled="true"], .stage .float-prac .sort-tool:disabled { background: #1f1b36; border-color: #3b3557; }
+/* 提示那 2 秒：按钮亮琥珀 */
+.stage .float-prac .sort-tool.is-on, .stage .float-prac .sort-tool.is-on:hover {
+  color: #f8ecd0; background: rgba(240, 195, 90, 0.16); border-color: rgba(240, 195, 90, 0.65); opacity: 1;
+}
+/* 做对后的【继续播放 ›】 */
+.stage .float-prac .sort-tool.is-pri { background: #7c3aed; border-color: #8b5cf6; color: #fff; font-weight: 700; }
+.stage .float-prac .sort-tool.is-pri:hover { background: #8b5cf6; }
+/* 标题栏下面的倒计时线：2 秒从满到空（HINT_SHOW_MS） */
+.sort-cd { flex: none; height: 2px; background: rgba(240, 195, 90, 0.16); overflow: hidden; }
+.sort-cd i { display: block; height: 100%; background: rgba(240, 195, 90, 0.9); transform-origin: left center; animation: sort-cd 2s linear forwards; }
+@keyframes sort-cd { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+/* 提示那 2 秒：词块区照旧摆着、压暗 */
+.stage .float-prac .sort-panel.is-hinting .sort-bank { opacity: 0.35; }
+/* 从浮动答题区拖起来的拖影（useDragDrop 加 is-prac） */
+.sort-ghost.is-prac { border-color: #8b5cf6; background: linear-gradient(180deg, #3e385b 0%, #2d2846 100%); }
+
+/* 弹出的二维码：白底留边，深色菜单上也扫得出 */
+
+/* ================= 窄屏版（core/mobile.js；「上下分屏」）=================
+   只有手机 + 本机灰度标记时 <html> 才有 is-mobile：这一节每条都挂在它下面（或者是只在窄屏版里出现的类），电脑的样式一条不动。
+   竖着拿：顶栏一行 → 16:9 视频全宽 → 下半屏（.m-lower：答题区 / 字幕列表卡片、循环进度、一排大按钮）；横着拿：只看片，舞台铺满。
+   配色照电脑控制区方案 A（上面 .stage .float-ctl 那段）的层次：灰阶分层，主色只给当前模式、循环进度条，「循环开着」琥珀，「今日未达标」沙金色。
+   换紫色以后这里的石墨灰换成带紫调的灰（明度照旧）：下半屏是页面不是浮在画面上的面板，切页签时顶栏、底色和别的页一个颜色，不在紫灰和石墨灰之间跳。
+   按钮至少 44px 高；手机没有悬停：控制条点画面才出、出来就是实的，列表的 🔁、最近播放的 × 常显 */
+html.is-mobile {
+  --g-bg: #0f0d17; --g-inset: #120f1d; --g-panel: #1a152d; --g-chip: #1e1933; --g-ctl: #282340; --g-ctl-hi: #312b4a; --g-sel: #474165;
+  --g-line: #2c2745; --g-edge: #373152; --g-ctl-line: #3c3759; --g-sel-line: #7f7aa0;
+  --g-text: #efeef9; --g-muted: #aeaacd; --g-small: #b9b4d7;
+  --violet: #7c3aed; --violet-line: #8b5cf6; --violet-text: #cdb4f8;
+  --remind: #dbb56d;
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+}
+html.is-mobile body { touch-action: manipulation; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+html.is-mobile #root { height: 100vh; height: 100dvh; }
+
+/* ---- 顶栏：页签 · 今日分数 · 头像，一行 44px（设计稿 A 细顶栏）；装到主屏幕后让开状态栏 ---- */
+/* 从桌面图标打开、竖着拿（html.is-app，core/mobile.js）：iOS 26 起系统在状态栏下面再往下约 40pt 画一道渐变模糊（Liquid Glass 边缘效果），
+   CSS、meta 都关不掉，顶栏压在里面就「最上面变模糊」。顶栏再往下让 --m-glass（定 18px），让出来的是顶栏同色的空白。
+   横着拿没有状态栏（安全区是 0），不让；Safari 里打开不是 is-app，不让 */
+/* 竖着时 Safari 顶部不虚化、桌面图标却虚化：网上有好几个项目
+   在 iOS 27 上验证过：系统在网页最上面 4～10px 取样，那里有一块固定定位、不透明的纯色，它就拿这个颜色铺状态栏，不画模糊。
+   所以竖着时在最顶上放一条 10px 的顶栏同色固定条（core/mobile.js 加的 .ios-top-strip），模糊没了。
+   可系统铺的那条纯色比状态栏还往下多出一点，盖住了头像圆圈的上沿：顶栏再往下让 6px（--m-glass）。
+   那条纯色就是取样来的顶栏色，让出来的这一截看不出接缝。万一哪天系统又改了、模糊回来，把这里改回 18px 就是原来的办法 */
+@media (orientation: portrait) { .is-mobile.is-app { --m-glass: 6px; } }
+
+.is-mobile .tab { padding: 0 8px; font-size: 14px; gap: 3px; }
+.is-mobile .tab:first-child { padding-left: 2px; }
+.is-mobile .tab.on::after { left: 8px; right: 8px; }
+.is-mobile .tab:first-child.on::after { left: 2px; }
+.is-mobile .avatar { width: 32px; height: 32px; position: relative; }
+.is-mobile button.avatar::after { content: ""; position: absolute; inset: -6px; }            /* 今天全部做完才变绿（达标是紫） */
+/* 比 390 窄（375 宽的 iPhone SE、mini、X 也在内）：页签再收紧、锁和页签上的小记号（做到一半的点、做完的勾）藏掉，不把头像挤出去。
+   量过：生词本三位数 + 今日 100/100 时，320–430 宽顶栏都不溢出（390 起靠上面分数、头像左边各省下的 2px） */
+@media (max-width: 389px) {
+  .is-mobile .tab { padding: 0 6px; font-size: 13.5px; }
+
+}
+@media (max-width: 340px) {
+  .is-mobile .tab { padding: 0 5px; font-size: 13px; }
+  
+}
+/* English 页签比中文长（Notebook、Words）：390–413 宽（iPhone 12–16、安卓 412）最挤的时候（生词本三位数、今日 295/300、两个锁）
+   头像被挤出去 13px（第五轮复查在无头 Chrome 里量的）。这一档 English 也照 389 以下那样收紧内边距和字号，锁照旧露着；
+   收紧以后 390 宽头像离右边还有 12px，三种语言 320–430 宽都放得下 */
+@media (min-width: 390px) and (max-width: 413px) {
+  html.is-mobile:lang(en) .tab { padding: 0 6px; font-size: 13.5px; }
+  html.is-mobile:lang(en) .tab:first-child { padding-left: 2px; }
+}
+
+/* ---- 起始页：左右 16px；打开视频一律大块，下面示例片一行、最近播放一条一行 ---- */
+/* 今日一行达标后右边那一颗「去跟读 ›」：手指点的，照窄屏版计划的规矩不小于 40px 高（电脑上是 27px 的小胶囊） */
+.is-mobile .banner { margin: 10px 14px 0; }
+/* 最近播放（components/RecentList.jsx compact）：一条一行，和上面示例片那一行
+   一个样子——海报 112 宽、圆角 8，右边片名（最多两行，长文件名整理过的短名）和「看到哪 · 多久以前」，× 一直露着、40px（触屏没有悬停），
+   对着海报那一块的正中（海报在一行里上下居中，× 对着这一行的正中）。海报底下那道细线是看到哪儿；没截到图的是黑底一个播放圆 */
+.is-mobile .recent.is-m { margin-top: 24px; }
+.is-mobile .recent.is-m .recent-head { margin-bottom: 10px; }
+/* 「全部 N 个 / 收起」：手指点的，能点到的地方上下各撑 12px（40px 高，字的位置不动）；触屏点过会留着悬停的下划线，不要 */
+.is-mobile .recent.is-m .recent-more { padding-top: 12px; padding-bottom: 12px; margin-top: -12px; margin-bottom: -12px; }
+.is-mobile .recent.is-m .recent-more:hover { text-decoration: none; }
+.is-mobile .recent-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.is-mobile .recent-row { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.is-mobile .recent-row-open {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 52px 8px 8px; text-align: left; color: inherit; cursor: pointer;
+  background: none; border: 0; border-radius: 12px;
+}
+.is-mobile .recent-row .recent-thumb { flex: none; width: 112px; border-radius: 8px; }
+.is-mobile .recent-row .recent-play { width: 30px; height: 30px; padding-left: 2px; font-size: 11px; opacity: 1; }
+.is-mobile .recent-row .recent-bar i { display: block; height: 100%; background: var(--accent-grad); }
+.is-mobile .recent-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.is-mobile .recent-row .recent-name {
+  padding: 0; font-size: 14px; line-height: 19px; white-space: normal; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+}
+/* 第二行「看到哪 · 多久以前」放不下就折行，不打省略号（360 宽简体「看到 02:53 / 21:40 · 5 小时前」要 150px、只给 142px，
+   截成「5 小…」；阿拉伯语、片长过一小时的也截，触屏又没有悬停提示看全文）。「· 多久以前」整段一起折到下一行，不在中间断开；
+   行高按内容撑开（片名两行、这一行也折成两行时 96px）。海报在一行里上下居中，× 跟着对着这一行的正中（= 海报正中）：
+   原来写死 top: 20px，只在一行 81px 时对得上，折行以后海报往下挪了 6–7px、× 还在原处 */
+.is-mobile .recent-row .recent-meta { padding: 0; white-space: normal; overflow: visible; }
+.is-mobile .recent-row .recent-meta > span { white-space: nowrap; }
+.is-mobile .recent-row-del {
+  position: absolute; top: calc(50% - 20px); right: 6px; width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: none; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer;
+}
+.is-mobile .recent-row-del:active { background: var(--panel-2); }
+/* 点一行时底下那句「请选择「文件名」」：文件名常是一长串不带空格的（Family.Guy.S20E01.1080p.WEB-DL…mkv），放不下就在哪儿都能折，不撑出屏幕。
+   宽度按字撑（max-content，最宽到左右各留 16px）：短提示 left: 50% 定位，不写的话浏览器只给它半个屏幕宽（390 宽时 195px），
+   长文件名被折成五行（无头 Chrome 390×844 截图看到的）；手机上别的短提示也跟着能放宽到一行半行，不再挤在屏幕中间一小条 */
+.is-mobile .toast { width: max-content; overflow-wrap: anywhere; }
+
+/* ---- 播放页骨架：舞台（16:9 全宽）+ 下半屏；Player 仍是 section.left 的第一个孩子 ---- */
+.is-mobile .workspace.is-m { display: flex; flex-direction: column; padding: 0; gap: 0; background: var(--g-bg); }
+.is-mobile .workspace.is-m .left { flex: 1; min-height: 0; overflow: hidden; gap: 0; display: flex; flex-direction: column; }
+.is-mobile .workspace.is-m .player { flex: none; }
+.is-mobile .workspace.is-m .stage { width: 100%; aspect-ratio: 16 / 9; border-radius: 0; }
+.is-mobile .workspace.is-m .stage video { position: absolute; inset: 0; width: 100%; height: 100%; max-height: none; min-height: 0; object-fit: contain; }
+.is-mobile .stage .overlay-sub { padding: 0 4%; bottom: 10%; transition: bottom .2s ease; }
+/* 窄屏版舞台就是 16:9 画面、字幕不限宽 */
+.is-mobile .stage .overlay-sub { max-width: none; }
+/* 控制条出来时（手机上是点了画面才出）：画面字幕抬到控制条上面（竖着控制条 14 + 28 + 40 = 82px 高）。不抬的话字幕压在进度条、
+   播放键上，点字幕的词点中的是控制条（点字幕的词会把视频暂停）。电脑「字幕不让路」是怕鼠标一动控制条就出、字幕跟着跳；
+   手机的控制条是她点了才出，字幕平滑抬上去 */
+.is-mobile .stage:not(.idle) .overlay-sub { bottom: 86px; }
+.is-mobile .stage .overlay-sub span { font-size: 15px; }
+.is-mobile .stage .overlay-sub .zh.pending { font-size: 12.5px; }
+/* 控制条（点画面才出）：进度条可点的一条 28px 高、圆点常显；条藏着时画面底边一道细进度 */
+.is-mobile .cbar.is-m { padding: 14px 8px 0; }
+.is-mobile .cbar.is-m .cb-progress { height: 28px; }
+.is-mobile .cbar.is-m .cb-thumb { opacity: 1; }
+.is-mobile .cbar.is-m .cb-row { height: 40px; }
+.is-mobile .cbar.is-m .cb-left, .is-mobile .cbar.is-m .cb-right { gap: 2px; }
+.is-mobile .cbar.is-m .cb-time { margin-left: 6px; font-size: 13px; }
+.is-mobile .cb-land { display: none; }
+.cb-mini { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 3px; background: rgba(255, 255, 255, 0.18); pointer-events: none; opacity: 0; transition: opacity .25s; }
+.cb-mini i { display: block; height: 100%; background: rgba(255, 255, 255, 0.82); }
+.is-mobile .stage.idle .cb-mini { opacity: 1; }
+
+/* 视频下面原来有一行「精听｜排序 · 提示 2 秒 · 重新打乱」（精听时是开关 + 第 N / M 句），去掉了，答题区 / 字幕列表多出一行高：
+   开关进「⋯」面板（.m-moderow），「提示」「打乱」在循环进度条那行（.m-tools），第 N / M 句写在字幕列表标题旁边 */
+.is-mobile .m-pill {
+  flex: 0 1 auto; min-width: 0; height: 44px; padding: 0 14px; border-radius: 999px; display: inline-block; line-height: 42px; text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.05); color: var(--g-text); font-size: 14.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+}
+.is-mobile .m-pill:active { background: rgba(255, 255, 255, 0.1); }
+.is-mobile .m-pill[aria-disabled="true"] { opacity: 0.4; }
+.is-mobile .m-pill.is-go { background: #dfe3e5; border-color: #dfe3e5; color: #141516; font-weight: 700; }
+
+.is-mobile .sort-panel.is-m { flex: 1; min-height: 0; display: flex; flex-direction: column; background: none; border: 0; border-radius: 0; --tok-fs: 18px; --tok-line: 45px; }
+/* 题目收起来时（正常看片）卡片只有中文那一行：缩到内容那么高，下面空着（SortPanel 没中文时不出卡片），大按钮还在原地 */
+/* 卡片中间那块：空格区、词块区按内容自动分地方（怎么分见 components/sort/useElasticBank.js）。
+   整块不再一起上下滚（固定位置），两块各划各的：
+   · 放得下（默认）：空格区多高给多高，剩下的都给词块区（松排，谁都不用划）；
+   · 放不下（.is-tight）：空格区占剩下的高、自己上下划；词块区照它要的高——三行以内照旧松排，多了改成几行左右划（.sort-bank.is-hscroll）。
+   没露出来的那头淡出一截：空格区下面（.is-more）、词块区右边（.is-more-right），看得出能划 */
+.is-mobile .sort-panel.is-m .sort-body { flex: 1; min-height: 0; overflow: hidden; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.is-mobile .sort-panel.is-m .sort-body > .sort-bank { flex: 1 1 auto; }
+.is-mobile .sort-panel.is-m .sort-body.is-tight > .sort-bank { flex: 0 0 auto; }
+.is-mobile .sort-panel.is-m .sort-bank.is-hscroll {
+  display: block; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; touch-action: pan-x; scrollbar-width: none;
+}
+.is-mobile .sort-panel.is-m .sort-bank.is-hscroll::-webkit-scrollbar { display: none; }
+.is-mobile .sort-panel.is-m .sort-bank.is-hscroll .sort-bank-track { display: flex; flex-wrap: wrap; align-items: center; align-content: flex-start; gap: inherit; }
+/* 横着划从词块上起手也要能滚：词块平时 touch-action: none（拖起来不许页面跟着动），这里放开横向；竖着的移动照旧交给拖动（useDragDrop 的 hpan） */
+.is-mobile .sort-panel.is-m .sort-bank.is-hscroll .sort-tok { flex: none; touch-action: pan-x; }
+.is-mobile .sort-panel.is-m .sort-bank.is-hscroll.is-more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent); }
+.is-mobile .sort-panel.is-m .sort-answer { flex: none; min-height: 0; padding: 4px 10px; }
+.is-mobile .sort-panel.is-m .sort-answer:hover { border-color: rgba(255, 255, 255, 0.14); }
+.is-mobile .sort-panel.is-m .sort-template .sort-tok { margin: 0 1px; padding: 7px 10px 6px; border-radius: 8px 8px 3px 3px; }
+.is-mobile .sort-panel.is-m .sort-slot { width: 52px; min-width: 0; padding: 7px 0 6px; white-space: nowrap; letter-spacing: -0.3em; border-radius: 8px 8px 3px 3px; }
+/* 点词块就落到的那个空位（从左数第一个空位）轻轻亮一下 */
+.is-mobile .sort-panel.is-m .sort-slot.is-next { background: rgba(84, 196, 122, 0.10); border-color: rgba(84, 196, 122, 0.45); border-bottom-color: rgba(84, 196, 122, 0.8); }
+.is-mobile .sort-panel.is-m .sort-bank { min-height: 0; gap: 9px 8px; padding: 10px; }
+/* 词块：卡片换成紫调的灰以后，石墨灰的药丸、拖着走的那块跟着换成紫调（明度照旧）；电脑的答题区浮在画面上，照旧石墨 */
+.is-mobile .sort-panel.is-m .sort-bank .sort-tok { height: 44px; padding: 0 17px; background: linear-gradient(180deg, #363051 0%, #27223f 100%); }
+.is-mobile .sort-panel.is-m .sort-bank .sort-tok:hover { transform: none; background: linear-gradient(180deg, #3e385b 0%, #2d2846 100%); }
+.is-mobile .sort-ghost { background: linear-gradient(180deg, #3e385b 0%, #2d2846 100%); }
+.is-mobile .sort-panel.is-m.is-long { --tok-fs: 16px; --tok-line: 40px; }
+.is-mobile .sort-panel.is-m.is-long .sort-template .sort-tok { padding: 5px 7px 4px; }
+.is-mobile .sort-panel.is-m.is-long .sort-slot { width: 44px; padding: 5px 0 4px; }
+.is-mobile .sort-panel.is-m.is-long .sort-bank .sort-tok { height: 40px; padding: 0 13px; }
+.is-mobile .sort-panel.is-m .sort-solved { padding: 4px 8px; cursor: pointer; }
+.is-mobile .sort-panel.is-m .sort-solved .sort-template { line-height: 44px; }
+.is-mobile .sort-panel.is-m .sort-solved .sort-tok { padding: 6px 8px; }
+.is-mobile .sort-panel.is-m .sort-solved .sort-tok.is-on { background: rgba(232, 185, 106, 0.18); box-shadow: 0 0 0 2px rgba(232, 185, 106, 0.75); }
+/* 精听：字幕列表整块放进卡片 */
+.is-mobile .m-list .lines-panel { flex: 1; min-height: 0; background: none; border: 0; border-radius: 0; }
+.is-mobile .m-list .lines-head { padding: 8px 12px; }
+/* 手机上输入框小于 16px 时 iPhone 一点就放大整页 */
+.is-mobile .search-box input { font-size: 16px; }
+.is-mobile .m-list .lines-back { width: 44px; height: 44px; right: 10px; bottom: 10px; border-color: var(--g-ctl-line); background: rgba(36, 31, 59, 0.95); color: var(--violet-text); }
+/* position: relative：每行的 offsetTop 按列表自己算，「跟随当前句」滚得到正中（LineList 用 offsetTop 算滚到哪） */
+.is-mobile .m-list .lines { position: relative; overscroll-behavior: contain; }
+.is-mobile .m-list .line { grid-template-columns: 42px minmax(0, 1fr) 40px; padding: 9px 6px; font-size: 15px; }
+.is-mobile .m-list .line .zh { font-size: 14px; }
+.is-mobile .line-acts button { opacity: 0.45; width: 40px; height: 40px; margin-top: -8px; }
+.is-mobile .line.current .line-acts button, .is-mobile .line.looping .line-acts button { opacity: 1; }
+
+/* Safari 带着底栏（视口只剩 660 来高）：答题区、按钮压紧一档 */
+@media (max-height: 700px) {
+  
+  .is-mobile .sort-panel.is-m { --tok-line: 42px; }
+  .is-mobile .sort-panel.is-m .sort-template .sort-tok, .is-mobile .sort-panel.is-m .sort-slot { padding-top: 6px; padding-bottom: 5px; }
+  .is-mobile .sort-panel.is-m .sort-bank { gap: 8px 7px; padding: 8px; }
+  .is-mobile .sort-panel.is-m .sort-bank .sort-tok { height: 42px; }
+
+  /* 精听卡片（390×664 时列表只剩两行）：表头矮一点 */
+  .is-mobile .m-list .lines-head { padding: 4px 12px; }
+}
+/* 再矮（iPhone SE 一类带着 Safari 底栏，375×553）：卡片、循环进度行、大按钮再压一档，答题卡片多出约 30px。
+   长句照样要在卡片里往下滑（底边淡出那一截提示下面还有）；第一行和大按钮仍是 44px */
+@media (max-height: 600px) {
+
+  .is-mobile .sort-panel.is-m, .is-mobile .sort-panel.is-m.is-long { --tok-line: 40px; }
+  .is-mobile .sort-panel.is-m .sort-bank { gap: 6px; padding: 6px; }
+  .is-mobile .sort-panel.is-m .sort-bank .sort-tok { height: 40px; }
+
+}
+
+/* ---- 「⋯」底部面板 ---- */
+.m-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; max-height: calc(100% - 40px); overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 14px; color: var(--g-text);
+  padding: 4px max(16px, env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: var(--g-panel); border-top: 1px solid var(--g-edge); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.5);
+  animation: m-sheet-in 0.18s ease-out;
+}
+@keyframes m-sheet-in { from { transform: translateY(28px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+.m-grab { flex: none; align-self: center; width: 64px; height: 18px; margin-bottom: -8px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
+.m-grab::before { content: ""; position: absolute; left: 13px; right: 13px; top: 6px; height: 5px; border-radius: 3px; background: #4b4569; }
+/* 翻译出错那句（.tr-status.bad）在「⋯」面板里同样折行写全：手机没有悬停，截成「这部视频约 6.0 小时，超过了每天新翻译 5…」
+   就看不到「翻译不了 / 明天再来」（手机默认排序模式，字幕列表让给答题区，这里是唯一说为什么的地方） */
+.m-btn {
+  height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--g-ctl-line); background: var(--g-ctl); color: var(--g-text);
+  font-size: 14.5px; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+}
+.m-btn:active { background: var(--g-ctl-hi); }
+.m-row { display: flex; align-items: center; gap: 8px; }
+
+   /* 词性（PRONOUN、VERB）原来 9.5px，手机上看不清 */
+
+/* ---- 学习设置、生词本：手指点得准。手机上没有悬停：生词本的 × 常显、不再半透明 ---- */
+.is-mobile .settings input:not([type="checkbox"]), .is-mobile .settings select { height: 40px; }
+.is-mobile .settings .btn.small { min-height: 36px; padding: 0 12px; font-size: 13px; }
+
+/* ---- 提示条：看视频时在那排大按钮上面 ---- */
+.is-mobile .app.m-watch .toast { bottom: calc(env(safe-area-inset-bottom) + 136px); }
+
+/* ---- 横着拿：只看片（主会话定，计划第七节 1-A）。顶栏、下半屏藏掉，舞台铺满；控制条多出上一句 / 下一句 / 循环（下面那排大按钮没了）。
+   只换样式，React 那边什么都不卸，视频不重载 ---- */
+@media (orientation: landscape) {
+  
+  .is-mobile .workspace.is-m { background: #000; }
+  
+  .is-mobile .workspace.is-m .player { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .is-mobile .workspace.is-m .stage { flex: 1; min-height: 0; aspect-ratio: auto; }
+  .is-mobile .cb-land { display: grid; }
+  /* 横着时控制条上的「循环」开着：和竖着那排大按钮一样是琥珀。cb-land 里只有循环会 .on（上一句、下一句没有开着这一说） */
+  .is-mobile .cbar.is-m .cb-btn.cb-land.on { color: var(--loop); }
+  .is-mobile .cbar.is-m { padding: 18px max(12px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(12px, env(safe-area-inset-left)); }
+  .is-mobile .stage:not(.idle) .overlay-sub { bottom: calc(90px + env(safe-area-inset-bottom)); }   /* 横着控制条 18 + 28 + 40 高 */
+  .is-mobile .stage .overlay-sub span { font-size: clamp(16px, 2.6vw, 24px); }
+  
+  .is-mobile .app.m-watch .toast { bottom: 24px; }
+}
+/* 窄屏版整个不能长按选字、不弹「拷贝 / 查询 / 翻译」（截图是学习设置）：
+   全是按钮和说明，选字只会误触；查词是自己的长按（WordCard 计时），不靠系统选字。句子解析、词卡、排序的中文、跟读的句子
+   在电脑上特意放开能抄（.an-layer / .wordcard / .sort-zh / .sp-sent 写着 user-select: text，优先级低，这条盖得住），手机上一并关掉。
+   首页、使用说明、关于页是文章，照旧能选：landing.css 里用更高的优先级放开（首页的样式只写在 landing.css） */
+.is-mobile *:not(input):not(textarea):not([contenteditable]) { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* 浏览器把 user-select 往下传（Chrome、Safari 都当继承属性），输入框得明着放开：iOS 上不放开，框里挪光标、选中数字都不行 */
+.is-mobile input, .is-mobile textarea, .is-mobile [contenteditable] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+/* 学习设置的拨动开关（Switch.jsx）：手机上整颗至少 44px 高、56px 宽，手指好按（电脑 48×32） */
+html.is-mobile .sw { min-inline-size: 56px; min-block-size: 44px; }
+/* ================= 窄屏版 结束 ================= */
+
+/* 「图标 + 字」的按钮放不下时只留图标（components/useTight.js）：字藏起来，名字在 title / aria-label 里 */
+[data-fit] { overflow: hidden; white-space: nowrap; }
+/* 图标和字都不许被压扁（弹性排版放不下时会先把图标压没了，量出来又刚好不超，is-tight 就加不上） */
+[data-fit] > * { flex-shrink: 0; }
+
+/* ================= 学中文：拼音注音、学习内容的字体（学中文第一期 B8，设计 §四 B8）=================
+   只挂在注音、学中文才会出现的东西上：.pyw（LearnText 画的一个带注音的词）、.has-py（这句真的画出了注音）、
+   学习内容（画面原文、列表原文、排序词块、拖影）上的 lang="zh-CN" / "zh-TW"（i18n/index.js learnAttrs；学英语时这几处最多标 lang="en"）。
+   注音「以此类推」（英文显示音标」）以后学英语、注音开着时也出：同一套 .pyw / .has-py，
+   音标那句外层多一个 .is-ipa（下面最后几条）。学英语、注音关着（默认）时一条都碰不到，样子一点不变。
+   放在镜像一节前面：那一节要在文件最后（ui-test 查） */
+/* 一个词一块（注音跟着词走，词中间不折行；词和词之间照常折行）。注音按词连写（wǒmen），在词上居中：ruby-align 挂在块上往下传
+   （只挂在 rt 上 Chrome 照旧把字母撑开铺满一格）。注音左右各留 .25em：拼音比字宽的词（怎么 zěnme、现在 xiànzài）挨着时，
+   不留就读成一串「zěnmexiànzài」。不能放在行首的标点 LearnText 粘进了前一块 */
+/* 词块里的数字、字母（2023年、第3集、卡拉OK厅；LearnText alnum）：整块一个盒子，注音就不悬挂到它上面 */
+/* Chrome 不给注音算行高（注音画在字的上方，会压进上一行）：画出了注音的句子自己把行距拉开，给注音留出位置。
+   画面字幕的每个 span 都是 1.35 行高（.overlay-sub span），词那一块跟着整句的行距走 */
+.overlay-sub .en.has-py { line-height: 2; }
+.line .en.has-py { line-height: 2.5; }
+/* 手机竖着：画面只有 211px 高，控制条出来时字幕底边抬到 86px，上面只剩 125px（56 个字的长句带拼音排成 4 行、128px，
+   第一行连拼音顶出画面）。拼音的字号不缩（10px 已是最小），行距从 2 收到 1.8、拼音左右的留白从 .25em 收到 .12em（词块窄了，一行多放几个词）。
+   还放不下由 Player 量着退（先藏这句的译文、再不出拼音，见 Player.jsx useSubFit） */
+.is-mobile .stage .overlay-sub .en.has-py { line-height: 1.8; }
+/* 音标（学英语、注音开着）：英文词和词之间本来有空格，音标不用像拼音那样左右各留 .25em 才分得开——留了反倒把短词（I、a、is）撑宽、
+   整句变长、多折一行。音标里有重音号、长音号（ˈ ː），字号和拼音一样不再小（10px 已是最小），字距不动 */
+/* （那一排又是原文、译文、注释三颗一行） */
+/* 学习内容的字体：简体按大陆字形、繁體按台湾字形画，不管界面是什么语言（日文界面里不标会画成日文字形；简体界面里的繁體轨要换繁體字体）。
+   排序词块是按钮（font: inherit），跟着答题区、词块区走；拖影挂在 body 上，自己标了 lang（useDragDrop） */
+:is(.overlay-sub .en, .line .en, .sort-template, .sort-bank, .sort-ghost)[lang="zh-CN"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+:is(.overlay-sub .en, .line .en, .sort-template, .sort-bank, .sort-ghost)[lang="zh-TW"] { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+/* ================= 学中文 结束 ================= */
+
+/* ================= 阿拉伯语界面：整个播放器左右镜像、从右往左=================
+   <html dir="rtl"> 只在播放器的界面语言是阿拉伯语时出现（main.jsx、App.jsx 按 i18n/lang.js uiDir 设；网站那几页按语言目录，归 landing.css）。
+   这一节每条都以 :root[dir="rtl"] 开头：别的 11 种界面语言 <html dir="ltr">，一条都碰不到、样子一点不变（ui-test 查这一条）。
+   不写不挂根的 [dir="rtl"] .x：从左往右的界面里，阿拉伯语母语的译文、词卡释义自己带 dir="rtl"，那样写会在它们里面生效。
+   弹性布局、网格浏览器自己会翻过来（别再翻一次）；这里只改用 left / right、margin-left: auto、text-align: left 这类物理方向写死了的地方，
+   照原规则一条条镜像——原规则在窄屏、窄屏版里还有变体的，这里也逐条跟上（不然这一条权重高，会把变体盖掉）。
+   照旧从左往右的（组件上标 dir="ltr"，i18n/index.js ltrAttrs / enAttrs）：控制条（进度条、播放、上一句下一句、时间、音量、全屏）、
+   控制区的「‹ 循环 播放 ›」和手机那排大按钮、循环进度条那一条、画面字幕和字幕列表里的英文、排序的空位和词块、句子解析的原句和成分、
+   跟读句子、单词题和例句、音标、手机号框。
+   位置照旧（不镜像）：浮动控制区默认挂右上角、答题区按坐标摆、整片字幕抽屉在左边（拖动、拉宽按坐标算；抽屉挪到右边会和控制区撞上） */
+
+/* 顶栏：第一个页签贴内容的右边；片名前的竖线、右边那组（换视频、头像）换边 */
+:root[dir="rtl"] .tab:first-child { padding-left: 12px; padding-right: 0; }
+:root[dir="rtl"] .tab:first-child.on::after { left: 12px; right: 0; }
+@media (max-width: 560px) {
+  :root[dir="rtl"] .tab:first-child { padding-left: 7px; }
+  
+}
+/* 用户菜单：头像在左上角，菜单从它下面往右展开；菜单项靠右；带箭头的图标翻过来 */
+:root[dir="rtl"] .mi { text-align: right; }
+:root[dir="rtl"] a.mi svg, :root[dir="rtl"] .mi.is-out svg { transform: scaleX(-1); }
+/* 顶上那条提示：× 挪到最左（「不是谷歌浏览器」那条照旧挨着字） */
+:root[dir="rtl"] .banner button { margin-left: 0; margin-right: auto; }
+/* 起始页：今日一行最后那一颗 / 那句挪到最左；打开视频那一行的内边距左右对调 */
+/* 最近播放：「全部 N 个」挪到最左；卡片的字靠右；片长、× 挪到左边的两个角；底下那道看到哪儿的进度是时间轴，照旧从左往右 */
+:root[dir="rtl"] .recent-more { margin-left: 0; margin-right: auto; }
+:root[dir="rtl"] .recent-open { text-align: right; }
+:root[dir="rtl"] .recent-bar { direction: ltr; }
+:root[dir="rtl"] .recent-dur, :root[dir="rtl"] .recent-del { right: auto; left: 6px; }
+/* 窄屏版最近播放的一行（只在窄屏版里有）：字靠右、× 挪到左边，内边距左右对调 */
+:root[dir="rtl"] .recent-row-open { text-align: right; padding: 8px 8px 8px 52px; }
+:root[dir="rtl"] .recent-row-del { right: auto; left: 6px; }
+/* 登录卡片：号码框照旧从左往右（LoginButton.jsx 标 dir="ltr"），字靠右、和卡片对齐 */
+/* 字幕列表：标题行右边的钮（「浮动层 / 侧边栏」切换）挪到最左；「回到当前句」圆钮挪到左下角 */
+:root[dir="rtl"] .lines-head .btn { margin-left: 0; margin-right: auto; }
+:root[dir="rtl"] .lines-back { right: auto; left: 12px; }
+/* 当前句 / 循环句的色条跟着行首挪到右边；解析层从左边滑进来，返回箭头朝右 */
+:root[dir="rtl"] .line.current { box-shadow: inset -3px 0 0 var(--accent); }
+:root[dir="rtl"] .line.looping { box-shadow: inset -3px 0 0 var(--loop); }
+/* 控制条上「画面字幕」那个小菜单：控制条照旧从左往右，菜单是界面文字（ControlBar.jsx 标回 dir="rtl"），勾和字靠右 */
+:root[dir="rtl"] .cb-check button { text-align: right; }
+
+/* 答题区：标题前的小绿点换到右边。英文句子从左往右、贴左（AnswerZone.jsx），排对以后的绿框也贴左，不然一排对就跳到右边去；
+   「提示中」那行、还没出题时那句是界面文字，照旧靠右 */
+:root[dir="rtl"] .sort-title strong::before { margin-right: 0; margin-left: 8px; }
+:root[dir="rtl"] .sort-answer { text-align: left; }
+/* 听写：答案框里的字跟着「学习语言」的方向走（组件上挂了 learnAttrs 的 dir）。阿拉伯语界面学英语时是 ltr，从左往右排、字靠左；学阿拉伯语时 dir=rtl，从右往左 */
+:root[dir="rtl"] .dict-typed[dir="ltr"] { text-align: left; }
+:root[dir="rtl"] .dict-typed[dir="rtl"] { text-align: right; }
+:root[dir="rtl"] .sort-answer .sort-template:not([dir="ltr"]) { text-align: right; }
+/* 句子解析层：× 挪到最左；每块的「N 个词」挪到最左；英文短语、音标那一列靠右（列宽照旧，从右边起） */
+/* 学习设置：抽屉从左边出来（.modal-backdrop 是 flex-end，从右往左时自己就在左边）；边线、阴影换到右边；× 挪到最左；「撤销」换边 */
+:root[dir="rtl"] .settings { border-left: 0; border-right: 1px solid var(--line); box-shadow: 12px 0 36px rgba(0, 0, 0, 0.45); }
+
+:root[dir="rtl"].is-mobile .tab:first-child { padding-left: 8px; padding-right: 2px; }
+:root[dir="rtl"].is-mobile .tab:first-child.on::after { left: 8px; right: 2px; }
+@media (max-width: 389px) {
+  :root[dir="rtl"].is-mobile .tab:first-child { padding-left: 6px; }
+}
+@media (max-width: 340px) {
+  :root[dir="rtl"].is-mobile .tab:first-child { padding-left: 5px; }
+}
+:root[dir="rtl"].is-mobile .m-list .lines-back { right: auto; left: 10px; }
+:root[dir="rtl"] .stage-top .top-back svg { transform: scaleX(-1); }
+/* 顶栏「← 片名」跟着镜像到右上角，浮动控制区照旧挂右上角（见本节开头）、层级 5 比顶栏的 1 高：箭头被面板标题栏压住，点不中返回。
+   面板不翻到左边（字幕抽屉在左边，翻过去会盖住抽屉头的关闭钮），也不把顶栏提到面板上面（箭头会画在面板标题字上；顶栏特意压在字幕抽屉下面），
+   只往下让开顶栏那一行：箭头底边 8 + 28 = 36，再空 8 → 离顶 44；高度上限跟着少 28。
+   只在有顶栏的舞台上让；拖过的面板 FloatControl 写行内 left / top，照她拖的位置摆，这条管不着 */
+:root[dir="rtl"] .sort-cd i { transform-origin: right center; }
+
+/* 母语译文：译文行、译文状态、等待波形 */
+.tr-pending { display: inline-flex; align-items: center; gap: 0.4em; }
+.sort-zh .tr-pending { font-size: 0.7em; color: #c4c4c4; }
+.tr-wave { display: inline-flex; align-items: center; gap: 0.14em; height: 0.95em; flex: none; filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.9)); }
+.tr-wave i { width: 0.14em; height: 100%; border-radius: 0.07em; background: #9b93ea; transform: scaleY(0.3); animation: tr-wave 1s ease-in-out infinite; }
+.tr-wave i:nth-child(2) { animation-delay: 0.15s; }
+.tr-wave i:nth-child(3) { animation-delay: 0.3s; }
+.tr-wave i:nth-child(4) { animation-delay: 0.45s; }
+.lines.view-zh .line .zh { color: var(--text); font-size: 14px; }
+.lines-sub { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-bottom: 1px solid var(--line); min-height: 36px; }
+.tr-status { font-size: 12px; color: var(--muted); }
+.tr-status.bad { color: #ffb3b3; }
+.sort-zh { margin: 12px 0 2px; padding: 2px 8px; text-align: center; color: #fff; font-weight: 700; line-height: 1.35; font-size: clamp(18px, 1.6vw, 24px); font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif; text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(0, 0, 0, 0.6); user-select: text; }
+:root[data-tr]:not([data-tr="zh-CN"]) .sort-zh { font-family: inherit; }
+.sub-ghost { display: inline-block; visibility: hidden; user-select: none; -webkit-user-select: none; pointer-events: none; }
+.float-prac .sort-zh { font-size: var(--sub-fs); }
+.sort-foot { flex: none; padding: 0 14px 8px; }
+.sort-foot .sort-zh { margin-top: 6px; }
+.stage .float-prac .sort-zh { -webkit-text-stroke: 0.6px rgba(0, 0, 0, 0.85); paint-order: stroke fill; text-shadow: 0 0 3px #000, 0 1px 3px #000, 0 0 1px #000; font-family: inherit; }
+@media (prefers-reduced-motion: reduce) { .tr-wave i { animation-duration: 2.4s; } }
+.stage .float-ctl .lines-sub .tr-status { color: var(--g-muted); }

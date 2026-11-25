@@ -17,6 +17,7 @@
 - [Should you practice on a computer or a phone?](#should-you-practice-on-a-computer-or-a-phone)
 - [About Earu, the app we make](#about-earu-the-app-we-make)
 - [FAQ](#faq)
+- [Source code: Earu Mini](#source-code-earu-mini)
 - [More](#more)
 - [Disclaimer](#disclaimer)
 
@@ -189,6 +190,17 @@ The score comes from comparing what you said with the original line word by word
 
 You can learn 12: English, German, French, Japanese, Korean, Turkish, Russian, Spanish, Chinese, Portuguese, Arabic, and Hindi. The app comes in 14 display languages.
 
+## Source code: Earu Mini
+
+The [`earu-mini`](earu-mini/) folder holds the source code of a small local practice player, released under the MIT license.
+
+- Opens MP4 and MKV files on your own computer and uses the text subtitles inside them.
+- Covered subtitles, Sort and Dictation.
+- No account, no server: nothing is uploaded.
+- Optional AI translation, if you fill in your own API settings.
+
+How to build and run it: [earu-mini/README.md](earu-mini/README.md).
+
 ## More
 
 - [Earu website](https://earu.ai/en/?utm_source=github)
@@ -198,7 +210,7 @@ You can learn 12: English, German, French, Japanese, Korean, Turkish, Russian, S
 
 ## Disclaimer
 
-This repository contains a guide only: no code, no installer, no scripts.
+Apart from the [`earu-mini`](earu-mini/) folder (MIT license), this repository contains only this guide. There is no installer here.
 
 The descriptions of tool categories are the typical case; an individual product may differ, so check each product's own documentation.
 
